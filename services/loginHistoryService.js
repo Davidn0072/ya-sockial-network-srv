@@ -2,32 +2,32 @@ import * as loginRepo from '../repositories/loginHsitoryRepo.js';
 
 // Get All
 const getAllLoginHistory = (queries) => {
-    return loginRepo.getAllLogins(queries);
+    return loginRepo.getAllLoginHistory(queries);
 };
 
 // Get By ID
 const getLoginHistoryById = (id) => {
-    return loginRepo.getLoginById(id);
+    return loginRepo.getLoginHistoryById(id);
 };
 
 // Create
 const addLoginHistory = (obj) => {
-    return loginRepo.addLogin(obj);
+    return loginRepo.addLoginHistory(obj);
 };
 
 // Update
 const updateLoginHistory = (id, obj) => {
-    return loginRepo.updateLogin(id, obj);
+    return loginRepo.updateLoginHistory(id, obj);
 };
 
 // Delete
 const deleteLoginHistory = (id) => {
-    return loginRepo.deleteLogin(id);
+    return loginRepo.deleteLoginHistory(id);
 };
 
 // Delete many records
 const deleteManyLoginHistory = (query) => {
-    return loginRepo.deleteManyLogins(query);
+    return loginRepo.deleteManyLoginHistory(query);
 };
 
 export { getAllLoginHistory, getLoginHistoryById, addLoginHistory, updateLoginHistory, deleteLoginHistory, deleteManyLoginHistory };
