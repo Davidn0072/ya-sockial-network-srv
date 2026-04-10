@@ -1,9 +1,4 @@
 import jwt from 'jsonwebtoken';
-import express from 'express';
-
-const router = express.Router();
-
-const SECRET_KEY = 'some_key';
 
 function verifyToken(req, res, next) {
     const token = req.headers['x-access-token'];
@@ -17,8 +12,8 @@ function verifyToken(req, res, next) {
             return res.status(403).json('Failed to authenticate token');
         }
 
-        req.user = data; // שומר את המידע למטה בראוטר
-        next(); // ממשיכים לראוטר
+        req.user = data; // save the data to the request
+        next(); // continue to the router
     });
 }
 
