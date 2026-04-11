@@ -37,6 +37,10 @@ app.use('/upload', verifyTokenMiddleware, storageUploadFileRouter);
 
 const chat = io.of('/chat');
 
+function createRoom(user1, user2) {
+    return [user1, user2].sort().join('_');
+}
+
 chat.use((socket, next) => {
     const token = socket.handshake.auth.token;
 
@@ -44,7 +48,8 @@ chat.use((socket, next) => {
 
     try {
         const payload = jwt.verify(token, process.env.SECRET_KEY);
-        socket.user = payload;
+        socket.userId = payload.id;
+        console.log(socket.userId);
         next();
     } catch {
         next(new Error('Invalid token'));
@@ -52,10 +57,33 @@ chat.use((socket, next) => {
 });
 
 chat.on('connection', (socket) => {
-    console.log('User connected:', socket.user);
+    console.log('User connected:', socket.userId);
 
     socket.on('chat message', (msg) => {
         chat.emit('chat message', `${msg}`);
+    });
+
+    socket.on('join private', ({ targetUserId }) => {
+        const room = createRoom(socket.userId, targetUserId);
+
+        socket.join(room);
+
+        console.log(`User ${socket.userId} joined ${room}`);
+    });
+
+    socket.on('private message', ({ msg, targetUserId }) => {
+
+        const room = createRoom(socket.userId, targetUserId);
+        console.log('emit-room:', room);
+        console.log('emit-msg:', msg);
+        console.log('emit-msg:' + typeof msg);
+        console.log('emit-targetUserId:', targetUserId);
+        console.log('emit-socket.userId:', socket.userId);
+        console.log('socket.userId:', socket.userId);
+        chat.to(room).emit('private message', {
+            from: socket.userId,
+            msg
+        });
     });
 
     socket.on('disconnect', () => {
