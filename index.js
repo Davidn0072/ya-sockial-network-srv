@@ -7,12 +7,13 @@ import loginHistoryRouter from './routers/loginHistoryRouter.js';
 import likesRouter from './routers/likesRouter.js';
 import friendRouter from './routers/friendRouter.js';
 import commentsRouter from './routers/commentsRouter.js';
-import uploadfileRouter from './routers/uploadfileRouter.js';
+import dbUploadFilesRouter from './routers/dbUploadFilesRouter.js';
 import authRouter from './routers/authRouter.js';
-import verifyToken from './routers/verifyTokenRouter.js';
+import verifyTokenMiddleware from './Middlewares/verifyTokenMiddleware.js';
 import http from 'http';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import storageUploadFileRouter from './routers/storageUploadFileRouter.js';
 
 const app = express();
 const port = 3000;
@@ -25,13 +26,14 @@ app.use(express.json());
 
 app.use('/auth', authRouter);
 
-app.use('/users', verifyToken, userRouter);
-app.use('/posts', verifyToken, postRouter);
-app.use('/login-history', verifyToken, loginHistoryRouter);
-app.use('/likes', verifyToken, likesRouter);
-app.use('/friends', verifyToken, friendRouter);
-app.use('/comments', verifyToken, commentsRouter);
-app.use('/uploadfiles', verifyToken, uploadfileRouter);
+app.use('/users', verifyTokenMiddleware, userRouter);
+app.use('/posts', verifyTokenMiddleware, postRouter);
+app.use('/login-history', verifyTokenMiddleware, loginHistoryRouter);
+app.use('/likes', verifyTokenMiddleware, likesRouter);
+app.use('/friends', verifyTokenMiddleware, friendRouter);
+app.use('/comments', verifyTokenMiddleware, commentsRouter);
+app.use('/uploadfilesdb', verifyTokenMiddleware, dbUploadFilesRouter);
+app.use('/upload', verifyTokenMiddleware, storageUploadFileRouter);
 
 const chat = io.of('/chat');
 

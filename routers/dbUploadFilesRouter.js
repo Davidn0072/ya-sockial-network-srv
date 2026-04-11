@@ -1,16 +1,16 @@
 import express from 'express';
-import * as postsService from '../services/postService.js';
+import * as dbUploadFilesService from '../services/dbUploadFilesService.js';
 
 const router = express.Router();
 
-// Base URL: 'http://localhost:3000/posts'
+// Base URL: 'http://localhost:3000/uploadfiles'
 
-// Get All Posts
+// Get All Upload Files
 router.get('/', async (req, res) => {
     try {
         const queries = req.query
-        const posts = await postsService.getAllPosts(queries);
-        res.send(posts);
+        const uploadfiles = await dbUploadFilesService.getAllDBUploadFiles(queries);
+        res.send(uploadfiles);
     } catch (error) {
         res.status(500).send(error);
     }
@@ -20,30 +20,30 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await postsService.getPostById(id);
-        res.send(post);
+        const uploadfile = await dbUploadFilesService.getDBUploadFileById(id);
+        res.send(uploadfile);
     } catch (error) {
         res.status(500).send(error);
     }
 });
 
-// Add a new person
+// Add a new upload file
 router.post('/', async (req, res) => {
     try {
-        const postObj = req.body;
-        const newPost = await postsService.addPost(postObj);
-        res.send(`The new ID: ${newPost._id}`);
+        const uploadfileObj = req.body;
+        const newUploadFile = await dbUploadFilesService.addDBUploadFile(uploadfileObj);
+        res.send(`The new ID: ${newUploadFile._id}`);
     } catch (error) {
         res.status(500).send(error.message);
     }
 });
 
-// Update a person
+// Update a upload file
 router.patch('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.body;
-        const result = await postsService.updatePost(id, data);
+        const result = await dbUploadFilesService.updateDBUploadFile(id, data);
         res.send(result);
     } catch (error) {
         res.status(500).send(error);
@@ -54,7 +54,7 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await postsService.deletePost(id);
+        const result = await dbUploadFilesService.deleteDBUploadFile(id);
         res.send(result);
     } catch (error) {
         res.status(500).send(error);

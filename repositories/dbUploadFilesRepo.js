@@ -1,0 +1,33 @@
+import dbUploadFilesModel from '../models/dbUploadFilesModel.js';
+
+// Get All
+const getAllDBUploadFiles = (queries) => {
+    return dbUploadFilesModel.find(queries);
+};
+
+// Get By ID
+const getDBUploadFileById = (id) => {
+    return dbUploadFilesModel.findById(id);
+};
+
+// Create
+const addDBUploadFile = (obj) => {
+    return dbUploadFilesModel.create(obj);
+};
+
+// Update
+const updateDBUploadFile = (id, obj) => {
+    return dbUploadFilesModel.findByIdAndUpdate(id, obj);
+};
+
+// Delete
+const deleteDBUploadFile = (id) => {
+    return dbUploadFilesModel.findByIdAndDelete(id);
+};
+
+// Delete many records
+const deleteManyDBUploadFiles = (query) => {
+    return dbUploadFilesModel.deleteMany(query);
+};
+
+export { getAllDBUploadFiles, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles };

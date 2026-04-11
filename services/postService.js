@@ -1,7 +1,7 @@
 import * as postRepo from '../repositories/postRepo.js';
 import { deleteManyLikes } from '../repositories/likesRepo.js';
 import { deleteManyComments } from '../repositories/commentsRepo.js';
-import { deleteManyUploadFiles } from '../repositories/uploadfileDB.Repo.js';
+import { deleteManyDBUploadFiles } from '../repositories/dbUploadFilesRepo.js';
 
 // Get All
 const getAllPosts = (queries) => {
@@ -40,7 +40,7 @@ const deletePost = async (id) => {
     await Promise.all([
         deleteManyLikes({ postId: id }),
         deleteManyComments({ postId: id }),
-        deleteManyUploadFiles({ postId: id })
+        deleteManyDBUploadFiles({ postId: id })
     ]);
     //console.log("Post-after delete-2:" + id);
     return await postRepo.deletePost(id);
