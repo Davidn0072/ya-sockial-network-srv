@@ -36,4 +36,18 @@ const isEmailExists = (email) => {
     return User.findOne({ email: email });
 };
 
-export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists };
+const findOneByField = (field) => {
+    const fieldName = Object.keys(field)[0];
+    const value = field[fieldName];
+
+    //console.log("fieldName:", fieldName, "value:", value);
+
+    return User.findOne({
+        [fieldName]: {
+            $regex: `^${value}$`,
+            $options: "i"
+        }
+    });
+};
+
+export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField };

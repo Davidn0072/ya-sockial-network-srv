@@ -1,35 +1,35 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import * as userService from '../services/userService.js';
-import * as loginHistoryService from '../services/loginHistoryService.js';
+import * as authService from '../services/authService.js';
 
 const router = express.Router();
 
 // Entry Point: http://localhost:3000/auth
+router.post('/register', async (req, res) => {
+  try {
+    const { name, email, password, confirmPassword } = req.body;
+
+    //console.log("register: " + name + " " + email + " " + password + " " + confirmPassword);
+    const user = await userService.register({ name, email, password, confirmPassword });
+
+    return res.status(200).json({ message: 'User registered successfully', user });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
 
 router.post('/login', async (req, res) => {
   try {
-    //console.log(req.body);
     const { email, password } = req.body;
-    //console.log(email, password);
-    //loginHistoryService.get
-    // if 'username' and 'password' are exist and correct in the DB
 
-    const user = await userService.getUserByEmailAndPassword(email, password);
-    //console.log(user);
-    if (!user) {
-      return res.status(401).json({ message: 'the email and password not found in the database' });
-    }
+    const result = await authService.login(email, password, req.ip);
 
-    const userId = user._id;
-    const SECRET_KEY = process.env.SECRET_KEY;
-    const token = jwt.sign({ id: userId }, SECRET_KEY, { expiresIn: '1h' });
-    await loginHistoryService.addLoginHistory({ userId: user._id, ipAddress: req.ip });
-    return res.status(200).json({ token, userId: user._id });
+    return res.status(200).json(result);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    const status = error.status || 500;
+    return res.status(status).json({ message: error.message });
   }
 });
 

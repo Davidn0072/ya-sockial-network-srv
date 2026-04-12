@@ -62,5 +62,30 @@ const isNameExists = (name) => {
 const isEmailExists = (email) => {
     return userRepo.isEmailExists(email);
 };
+const findOneByField = (field) => {//case insensitive search
+    return userRepo.findOneByField(field);
+};
 
-export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists };
+async function register({ name, email, password, confirmPassword }) {
+
+    //console.log("register: " + name + " " + email + " " + password + " " + confirmPassword + " " + (password === confirmPassword));
+
+    const isNameExists = await findOneByField({ name: name });
+    if (isNameExists) {
+        throw new Error('Name already exists');
+    }
+
+    const isEmailExists = await findOneByField({ email: email });
+    if (isEmailExists) {
+        throw new Error('Email already exists');
+    }
+
+    if (password !== confirmPassword) {
+        throw new Error('Password and confirm password do not match');
+    }
+
+    const newUser = await addUser({ name, email, password });
+    return newUser;
+}
+
+export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register };
