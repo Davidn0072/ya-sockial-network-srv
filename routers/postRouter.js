@@ -61,4 +61,14 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+router.get('/:id/full', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const post = await postsService.getPostWithDetails(id);
+        res.send(post);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 export default router;

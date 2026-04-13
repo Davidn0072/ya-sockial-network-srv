@@ -5,6 +5,6 @@ import { storageUploadFile } from '../services/storageUploadFileService.js';
 import storageUploadFileMiddleware from '../Middlewares/storageUploadFileMiddleware.js';
 
 // כאן הבקשה נכנסת
-router.post('/', storageUploadFileMiddleware.single('file'), storageUploadFile);
+router.post('/:postId', storageUploadFileMiddleware.single('file'), storageUploadFile);
 
 export default router;
