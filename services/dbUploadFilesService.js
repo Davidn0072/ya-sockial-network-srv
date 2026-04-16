@@ -1,4 +1,5 @@
 import * as dbUploadFilesRepo from '../repositories/dbUploadFilesRepo.js';
+import * as storageUploadFileRepo from '../repositories/storageUploadFileRepo.js';
 
 // Get All
 const getAllDBUploadFiles = (queries) => {
@@ -21,8 +22,18 @@ const updateDBUploadFile = (id, obj) => {
 };
 
 // Delete
-const deleteDBUploadFile = (id) => {
-    return dbUploadFilesRepo.deleteDBUploadFile(id);
+const deleteDBUploadFile = async (id) => {
+    const uploadfile = await getDBUploadFileById(id);
+
+    // console.log('uploadfile-service', uploadfile);
+
+    if (!uploadfile) {
+        throw new Error('File not found in DB');
+    }
+
+    await storageUploadFileRepo.deleteStorageFileInfo(uploadfile.postId + '/' + uploadfile.storageFileName);
+
+    return await dbUploadFilesRepo.deleteDBUploadFile(id);
 };
 
 // Delete many records

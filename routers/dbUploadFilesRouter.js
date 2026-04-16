@@ -54,6 +54,7 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        console.log('Deleting file:', id);
         const result = await dbUploadFilesService.deleteDBUploadFile(id);
         res.send(result);
     } catch (error) {
