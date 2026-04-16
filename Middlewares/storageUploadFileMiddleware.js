@@ -3,7 +3,8 @@ import fs from 'fs';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const postId = req.query.postId;
+    //const postId = req.query.postId;
+    const postId = req.params.postId;
     const dir = `uploads/${postId}`;
 
     if (!fs.existsSync(dir)) {
@@ -13,8 +14,9 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    const postId = req.query.postId;
-    cb(null, `${postId}-${Date.now()}-${file.originalname}`);
+    //const postId = req.query.postId;
+    const postId = req.params.postId;
+    cb(null, `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`);
   }
 });
 /*

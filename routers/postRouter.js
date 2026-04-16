@@ -61,13 +61,16 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-router.get('/:id/full', async (req, res) => {
+router.get('/postWithDetails/:postId', async (req, res) => {
     try {
-        const { id } = req.params;
-        const post = await postsService.getPostWithDetails(id);
-        res.send(post);
-    } catch (error) {
-        res.status(500).send(error);
+        const result = await postsService.getPostWithDetails(
+            req.params.postId,
+            req.query
+        );
+
+        res.json(result);
+    } catch (err) {
+        res.status(500).send(err.message);
     }
 });
 

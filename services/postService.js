@@ -1,7 +1,7 @@
 import * as postRepo from '../repositories/postRepo.js';
-import { deleteManyLikes } from '../repositories/likesRepo.js';
-import { deleteManyComments } from '../repositories/commentsRepo.js';
-import { deleteManyDBUploadFiles } from '../repositories/dbUploadFilesRepo.js';
+import { deleteManyLikes, getAllLikesGroupByStatus } from '../repositories/likesRepo.js';
+import { deleteManyComments, getAllComments } from '../repositories/commentsRepo.js';
+import { deleteManyDBUploadFiles, getAllDBUploadFiles } from '../repositories/dbUploadFilesRepo.js';
 
 // Get All
 const getAllPosts = (queries) => {
@@ -46,4 +46,36 @@ const deletePost = async (id) => {
     return await postRepo.deletePost(id);
 };
 
-export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost };
+const getPostWithDetails = async (postId, query) => {
+    const page = Number(query.page) || 1;
+    const limit = 10;
+    //console.log(postId);
+    const post = await postRepo.getPostById(postId);
+    //console.log(post);
+    if (!post) {
+        return { error: 'Post not found' };
+    }
+    //console.log("error1");
+    const comments = await getAllComments({
+        postId,
+        page,
+        limit
+    });
+    //console.log(comments);
+    const files = await getAllDBUploadFiles({ postId });
+    //console.log(files);
+    const likesStats = await getAllLikesGroupByStatus({ postId });
+    console.log(likesStats);
+    return {
+        post,
+        comments,
+        files,
+        likesStats,
+        pagination: {
+            page,
+            hasMore: comments.hasMore
+        }
+    };
+};
+
+export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails };

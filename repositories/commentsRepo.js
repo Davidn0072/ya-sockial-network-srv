@@ -1,8 +1,29 @@
 import Comments from '../models/commentsModel.js';
 
 // Get All
-const getAllComments = (queries) => {
+const getAllComments1 = (queries) => {
     return Comments.find(queries);
+};
+
+const getAllComments = async ({ postId, page, limit }) => {
+    const skip = (page - 1) * limit;
+
+    // console.log("getAllComments postId:" + postId + " page:" + page + " limit:" + limit + " skip:" + skip);
+
+    const comments = await Comments.find({ postId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit + 1);
+    // console.log("getAllComments comments1:");
+    //console.log("getAllComments comments:" + comments);
+    const hasMore = comments.length > limit;
+
+    if (hasMore) comments.pop();
+
+    return {
+        data: comments,
+        hasMore
+    };
 };
 
 // Get By ID

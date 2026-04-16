@@ -33,6 +33,7 @@ app.use('/likes', verifyTokenMiddleware, likesRouter);
 app.use('/friends', verifyTokenMiddleware, friendRouter);
 app.use('/comments', verifyTokenMiddleware, commentsRouter);
 app.use('/uploadfilesdb', verifyTokenMiddleware, dbUploadFilesRouter);
+app.use('/uploads', express.static('uploads'));//for view img files in browser
 app.use('/upload', verifyTokenMiddleware, storageUploadFileRouter);
 
 const chat = io.of('/chat');

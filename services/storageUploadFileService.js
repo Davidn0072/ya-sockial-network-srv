@@ -1,29 +1,18 @@
-import { saveStorageFileInfo } from '../repositories/storageUploadFileRepo.js';
+//import { saveStorageFileInfo } from '../repositories/storageUploadFileRepo.js';
+import * as dbUploadFilesService from '../services/dbUploadFilesService.js';
 
 export const storageUploadFile = async (req, res) => {
-  try {
-    const file = req.file;
-    const postId = req.body.postId;
-
-    console.log(file);
-    console.log(postId);
-
-    if (!file) {
-      return res.status(400).send('No file uploaded');
-    }
-
-    const savedStorageFileInfo = await saveStorageFileInfo({
-      name: file.filename,
-      originalName: file.originalname,
-      size: file.size
-    });
-
-    res.json({
-      message: 'File uploaded successfully',
-      data: savedStorageFileInfo
-    });
-
-  } catch (err) {
-    res.status(500).send('Server error');
+  const file = req.file;
+  if (!file) {
+    throw new Error('No file uploaded');
   }
+  //console.log("storageUploadFile11:", file);
+  const dbUploadFile = await dbUploadFilesService.addDBUploadFile({
+    storageFileName: file.filename,
+    originalFileName: file.originalname,
+    userId: req.user.id,
+    postId: req.params.postId
+  });
+  //console.log("dbUploadFile11:", dbUploadFile);
+  return dbUploadFile;
 };
