@@ -25,4 +25,30 @@ const deleteStorageFileInfo = async (filename) => {
   }
 };
 
-export { deleteStorageFileInfo };
+const deletePostFolder = async (postId) => {
+  const folderPath = path.join('uploads', String(postId));
+
+  try {
+    console.log('deletePostFolder:', folderPath);
+    await fs.access(folderPath);
+
+    const files = await fs.readdir(folderPath);
+
+    await Promise.all(
+      files.map(file =>
+        fs.unlink(path.join(folderPath, file))
+      )
+    );
+
+    await fs.rmdir(folderPath);
+
+    console.log(`Folder deleted: ${folderPath}`);
+    return true;
+
+  } catch (err) {
+    console.error(`Failed deleting folder ${folderPath}:`, err.message);
+    return false;
+  }
+};
+
+export { deleteStorageFileInfo, deletePostFolder };

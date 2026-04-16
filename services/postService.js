@@ -1,7 +1,8 @@
 import * as postRepo from '../repositories/postRepo.js';
-import { deleteManyLikes, getAllLikesGroupByStatus } from '../repositories/likesRepo.js';
-import { deleteManyComments, getAllComments } from '../repositories/commentsRepo.js';
-import { deleteManyDBUploadFiles, getAllDBUploadFiles } from '../repositories/dbUploadFilesRepo.js';
+import { deleteManyLikes, getAllLikesGroupByStatus } from '../services/likesService.js';
+import { deleteManyComments, getAllComments } from '../services/commentsService.js';
+import { deleteManyDBUploadFiles, getAllDBUploadFiles } from '../services/dbUploadFilesService.js';
+import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
 
 // Get All
 const getAllPosts = (queries) => {
@@ -36,6 +37,9 @@ const deletePost = async (id) => {
     if (!post) {
         return res.status(404).send('Post not found');
     }
+
+    await deletePostFolder(id);
+
     //console.log("Post-before delete-1:" + id);
     await Promise.all([
         deleteManyLikes({ postId: id }),

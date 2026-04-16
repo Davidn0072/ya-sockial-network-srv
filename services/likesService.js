@@ -30,5 +30,7 @@ const deleteManyLikes = (query) => {
     console.log(query);
     return likesRepo.deleteManyLikes(query);
 };
-
-export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes };
+const getAllLikesGroupByStatus = async (queries) => {
+    return await likesRepo.getAllLikesGroupByStatus(queries);
+};
+export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByStatus };
