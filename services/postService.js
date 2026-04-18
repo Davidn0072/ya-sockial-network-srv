@@ -1,5 +1,5 @@
 import * as postRepo from '../repositories/postRepo.js';
-import { deleteManyLikes, getAllLikesGroupByStatus } from '../services/likesService.js';
+import { deleteManyLikes, getAllLikesGroupByType } from '../services/likesService.js';
 import { deleteManyComments, getAllComments } from '../services/commentsService.js';
 import { deleteManyDBUploadFiles, getAllDBUploadFiles } from '../services/dbUploadFilesService.js';
 import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
@@ -35,7 +35,7 @@ const deletePost = async (id) => {
     //console.log("Post-after getPostById-0:" + post);
 
     if (!post) {
-        return res.status(404).send('Post not found');
+        return { error: 'Post not found' };
     }
 
     await deletePostFolder(id);
@@ -68,8 +68,8 @@ const getPostWithDetails = async (postId, query) => {
     //console.log(comments);
     const files = await getAllDBUploadFiles({ postId });
     //console.log(files);
-    const likesStats = await getAllLikesGroupByStatus({ postId });
-    console.log(likesStats);
+    const likesStats = await getAllLikesGroupByType({ postId });
+    //console.log('getPostWithDetails-likesStats:', likesStats);
     return {
         post,
         comments,

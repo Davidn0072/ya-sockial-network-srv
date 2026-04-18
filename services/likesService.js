@@ -1,5 +1,5 @@
 import * as likesRepo from '../repositories/likesRepo.js';
-
+import * as postsService from './postService.js';
 // Get All
 const getAllLikes = (queries) => {
     return likesRepo.getAllLikes(queries);
@@ -30,7 +30,23 @@ const deleteManyLikes = (query) => {
     console.log(query);
     return likesRepo.deleteManyLikes(query);
 };
-const getAllLikesGroupByStatus = async (queries) => {
-    return await likesRepo.getAllLikesGroupByStatus(queries);
+const getAllLikesGroupByType = async (queries) => {
+    return await likesRepo.getAllLikesGroupByType(queries);
 };
-export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByStatus };
+const addOrUpdateReaction = async (reactionData) => {
+
+    const post = await postsService.getPostById(reactionData.postId);
+    if (!post) {
+        throw new Error("Post not found");
+    }
+    if (post.userId.toString() === reactionData.userId.toString()) {
+        throw new Error("Cannot react to your own post");
+    }
+    return await likesRepo.addOrUpdateReaction(reactionData.userId, reactionData.postId, reactionData.type);
+};
+
+const getLikesByType = async (postId, type) => {
+    return await likesRepo.getLikesByType(postId, type);
+};
+
+export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };

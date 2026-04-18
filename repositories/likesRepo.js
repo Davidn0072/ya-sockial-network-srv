@@ -31,7 +31,7 @@ const deleteManyLikes = (query) => {
     return Likes.deleteMany(query);
 };
 
-const getAllLikesGroupByStatus = async (queries) => {
+const getAllLikesGroupByType = async (queries) => {
     const matchStage = {
         ...queries,
         postId: new mongoose.Types.ObjectId(queries.postId)
@@ -41,7 +41,7 @@ const getAllLikesGroupByStatus = async (queries) => {
         { $match: matchStage },
         {
             $group: {
-                _id: "$status",
+                _id: "$type",
                 count: { $sum: 1 }
             }
         }
@@ -51,19 +51,50 @@ const getAllLikesGroupByStatus = async (queries) => {
 
     const formatted = result.reduce((acc, item) => {
         acc[item._id] = item.count;
-        console.log("acc:", acc);
+        //console.log("acc:", acc);
         return acc;
     }, {});
 
-    //console.log("formatted:", formatted);
-
     return {
-        liked: 0,
-        disliked: 0,
-        neutral: 0,
+        total: result.reduce((acc, item) => acc + item.count, 0),
+        like: 0,
+        love: 0,
+        celebrate: 0,
+        insightful: 0,
+        funny: 0,
         ...formatted
     };
 }
 
+const addOrUpdateReaction = async (userId, postId, type) => {
+    userId = String(userId);
+    postId = String(postId);
 
-export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByStatus };
+    const existing = await Likes.findOne({ userId, postId });
+
+    //console.log("addOrUpdateReaction-existing:", existing + " userId: " + userId + " postId: " + postId + " type: " + type);
+
+    if (!existing) {
+        return Likes.create({ userId, postId, type });
+    }
+
+    //console.log("addOrUpdateReaction-existing.type:", existing.type + " type: " + type);
+
+    if (existing.type === type) {
+        await Likes.deleteOne({ _id: existing._id });
+        return { action: 'deleted' };
+    }
+
+    existing.type = type;
+    await existing.save();
+
+    //console.log("addOrUpdateReaction-returning:", { action: 'updated', type });
+
+    return { action: 'updated', type };
+};
+
+const getLikesByType = async (postId, type) => {
+    return await Likes.find({ postId, type }).populate('userId', 'name');
+};
+
+export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };

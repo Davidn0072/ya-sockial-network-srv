@@ -1,17 +1,22 @@
 import mongoose from 'mongoose';
 
-const likesSchema = mongoose.Schema(
+const likesSchema = new mongoose.Schema(
     {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         postId: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', required: true },
-        status: { type: String, enum: ['liked', 'disliked', 'neutral'], default: 'neutral' },//'like', 'love', 'haha', 'wow'
-        createdAt: { type: Date, default: Date.now },
-        updatedAt: { type: Date, default: Date.now },
+        type: {
+            type: String,
+            enum: ['like', 'love', 'celebrate', 'insightful', 'funny'],
+            default: 'like'
+        }
     },
-    { versionKey: false, timestamps: true }
+    { timestamps: true }
 );
+
+likesSchema.index({ userId: 1, postId: 1 }, { unique: true });
 
 const Likes = mongoose.model('Likes', likesSchema, 'likes');
 
 export default Likes;
+
 
