@@ -30,6 +30,9 @@ const deletePostFolder = async (postId) => {
 
   try {
     console.log('deletePostFolder:', folderPath);
+    if (!fs.existsSync(folderPath)) {
+      return true;
+    }
     await fs.access(folderPath);
 
     const files = await fs.readdir(folderPath);
