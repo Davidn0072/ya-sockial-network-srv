@@ -3,61 +3,95 @@ import * as friendService from '../services/friendService.js';
 
 const router = express.Router();
 
-// Base URL: 'http://localhost:3000/friends'
+// Base URL: 'http://localhost:3000/friend'
 
-// Get All Friends
-router.get('/', async (req, res) => {
+router.post("/request", async (req, res) => {
     try {
-        const queries = req.query
-        const friends = await friendService.getAllFriends(queries);
-        res.send(friends);
-    } catch (error) {
-        res.status(500).send(error);
+        const fromUserId = req.user.id;
+        const toUserId = req.body.toUserId;
+
+        const result = await friendService.sendFriendRequest(fromUserId, toUserId);
+
+        res.status(201).send(result);
+    } catch (err) {
+        res.status(400).send({ error: err.message });
     }
 });
 
-// Get By Id
-router.get('/:id', async (req, res) => {
+router.get("/requests", async (req, res) => {
     try {
+        const userId = req.user.id;
+
+        const data = await friendService.getRequestsByUserIdStatusRole(userId, "pending", "to");
+
+        res.status(200).send(data);
+    } catch (err) {
+        res.status(400).send({ error: err.message });
+    }
+});
+
+router.get("/rejected", async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const data = await friendService.getRequestsByUserIdStatusRole(userId, "rejected", "to");
+
+        res.status(200).send(data);
+    } catch (err) {
+        res.status(400).send({ error: err.message });
+    }
+});
+
+router.get("/accepted", async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const data = await friendService.getFriends(userId);
+
+        res.status(200).send(data);
+    } catch (err) {
+        res.status(400).send({ error: err.message });
+    }
+});
+
+
+router.post("/accept", async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const requestId = req.body.requestId;
+
+        const result = await friendService.acceptRequest(requestId, userId);
+
+        res.status(200).send(result);
+    } catch (err) {
+        res.status(400).send({ error: err.message });
+    }
+});
+
+router.post("/reject", async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const requestId = req.body.requestId;
+
+        const result = await friendService.rejectRequest(requestId, userId);
+
+        res.status(200).send(result);
+    } catch (err) {
+        res.status(400).send({ error: err.message });
+    }
+});
+
+router.delete("/:id", async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const otherUserId = req.params.userId;
         const { id } = req.params;
-        const friend = await friendService.getFriendById(id);
-        res.send(friend);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-});
+        //console.log("deleteFriendRequest: " + id + " " + userId + " " + otherUserId);
+        await friendService.deleteFriendRequest(id);
 
-// Add a new friend
-router.post('/', async (req, res) => {
-    try {
-        const friendObj = req.body;
-        const newFriend = await friendService.addFriend(friendObj);
-        res.send(`The new ID: ${newFriend._id}`);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-});
-
-// Update a friend
-router.patch('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const data = req.body;
-        const result = await friendService.updateFriend(id, data);
-        res.send(result);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-});
-
-// Delete a friend
-router.delete('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await friendService.deleteFriend(id);
-        res.send(result);
-    } catch (error) {
-        res.status(500).send(error);
+        res.status(200).send({ message: "Unfriended" });
+    } catch (err) {
+        res.status(400).send({ error: err.message });
     }
 });
 
