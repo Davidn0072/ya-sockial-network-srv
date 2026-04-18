@@ -1,26 +1,34 @@
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
+
 /*
 const saveStorageFileInfo = async (fileData) => {
-  // DB (Mongo / SQL)
   console.log('Saving to DB:', fileData);
 
   return {
     id: Date.now(),
     ...fileData
   };
-};*/
+};
+*/
 
 const deleteStorageFileInfo = async (filename) => {
   const filePath = path.join('uploads', filename);
 
   try {
-    console.log('Deleting file1:', filePath);
+    console.log('Deleting file:', filePath);
+
+    // נבדוק קיום בצורה async-ית נקייה
     await fs.access(filePath);
+
     await fs.unlink(filePath);
-    console.log('Deleted file2:', filePath);
+
+    console.log('Deleted file:', filePath);
     return true;
+
   } catch (err) {
+    // אם הקובץ לא קיים או שגיאה אחרת
     throw new Error(`File delete failed: ${err.message}`);
   }
 };
@@ -30,20 +38,27 @@ const deletePostFolder = async (postId) => {
 
   try {
     console.log('deletePostFolder:', folderPath);
-    if (!fs.existsSync(folderPath)) {
+
+    // בדיקת קיום (sync קצר ולעניין)
+    if (!fsSync.existsSync(folderPath)) {
       return true;
     }
-    await fs.access(folderPath);
 
+    // קבלת כל הקבצים בתיקייה
     const files = await fs.readdir(folderPath);
 
+    // מחיקת כל הקבצים
     await Promise.all(
       files.map(file =>
         fs.unlink(path.join(folderPath, file))
       )
     );
 
-    await fs.rmdir(folderPath);
+    // מחיקת התיקייה עצמה (גרסה מודרנית במקום rmdir)
+    await fs.rm(folderPath, {
+      recursive: true,
+      force: true
+    });
 
     console.log(`Folder deleted: ${folderPath}`);
     return true;
@@ -54,4 +69,7 @@ const deletePostFolder = async (postId) => {
   }
 };
 
-export { deleteStorageFileInfo, deletePostFolder };
+export {
+  deleteStorageFileInfo,
+  deletePostFolder
+};
