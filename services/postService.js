@@ -65,14 +65,28 @@ const getPostWithDetails = async (postId, query) => {
         page,
         limit
     });
-    //console.log(comments);
+
+    const commentsWithLikes = await Promise.all(
+        comments.data.map(async (comment) => {
+            const likesStats = await getAllLikesGroupByType({ targetId: comment._id });
+            return { ...comment.toObject(), likesStats };
+        })
+    );
+    /*
+        console.log('comments:', JSON.stringify(comments, null, 2));
+        console.log('--------------------------------');
+        console.log('commentsWithLikes:', JSON.stringify(commentsWithLikes, null, 2));
+    */
     const files = await getAllDBUploadFiles({ postId });
     //console.log(files);
-    const likesStats = await getAllLikesGroupByType({ postId });
-    //console.log('getPostWithDetails-likesStats:', likesStats);
+    const likesStats = await getAllLikesGroupByType({ targetId: postId });
+
+    //console.log('getPostWithDetails-likesStats:', JSON.stringify(likesStats, null, 2));
+
     return {
         post,
-        comments,
+        comments: commentsWithLikes,
+        //comments,
         files,
         likesStats,
         pagination: {

@@ -33,20 +33,62 @@ const deleteManyLikes = (query) => {
 const getAllLikesGroupByType = async (queries) => {
     return await likesRepo.getAllLikesGroupByType(queries);
 };
-const addOrUpdateReaction = async (reactionData) => {
+const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
+    try {
+        console.log("addOrUpdateReaction-input:", { userId, targetId, targetType, type });
 
-    const post = await postsService.getPostById(reactionData.postId);
-    if (!post) {
-        throw new Error("Post not found");
+
+        const existing = await likesRepo.getLikeByUserIdAndTargetIdAndTargetType({
+            userId,
+            targetId,
+            targetType
+        });
+
+        console.log("existing-reaction:", existing);
+
+        if (!existing) {
+            const created = await likesRepo.addLike({
+                userId,
+                targetId,
+                targetType,
+                type
+            });
+
+            return {
+                action: 'created',
+                reaction: created
+            };
+        }
+        console.log("addOrUpdateReaction-existing.type:", JSON.stringify(existing) + " type: " + type);
+        if (existing.type === type) {
+            await likesRepo.deleteLike(existing._id);
+            console.log("deleteLike-existing:", existing._id);
+            return {
+                action: 'deleted',
+                reaction: null
+            };
+        }
+
+        existing.type = type;
+
+        const updated = await likesRepo.updateLike(existing._id, {
+            type
+        });
+
+        return {
+            action: 'updated',
+            reaction: updated
+        };
+
+    } catch (err) {
+        console.error("addOrUpdateReaction-error:", err);
+        throw err;
     }
-    if (post.userId.toString() === reactionData.userId.toString()) {
-        throw new Error("Cannot react to your own post");
-    }
-    return await likesRepo.addOrUpdateReaction(reactionData.userId, reactionData.postId, reactionData.type);
 };
 
-const getLikesByType = async (postId, type) => {
-    return await likesRepo.getLikesByType(postId, type);
+
+const getLikesByType = async ({ targetId, type }) => {
+    return await likesRepo.getLikesByType({ targetId, type });
 };
 
 export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };

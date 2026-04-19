@@ -34,7 +34,7 @@ const deleteManyLikes = (query) => {
 const getAllLikesGroupByType = async (queries) => {
     const matchStage = {
         ...queries,
-        postId: new mongoose.Types.ObjectId(queries.postId)
+        targetId: new mongoose.Types.ObjectId(queries.targetId)
     };
 
     const result = await Likes.aggregate([
@@ -66,16 +66,16 @@ const getAllLikesGroupByType = async (queries) => {
     };
 }
 
-const addOrUpdateReaction = async (userId, postId, type) => {
+const addOrUpdateReaction = async (userId, targetId, targetType, type) => {
     userId = String(userId);
     postId = String(postId);
 
-    const existing = await Likes.findOne({ userId, postId });
+    const existing = await Likes.findOne({ userId, targetId, targetType });
 
     //console.log("addOrUpdateReaction-existing:", existing + " userId: " + userId + " postId: " + postId + " type: " + type);
 
     if (!existing) {
-        return Likes.create({ userId, postId, type });
+        return Likes.create({ userId, targetId, targetType });
     }
 
     //console.log("addOrUpdateReaction-existing.type:", existing.type + " type: " + type);
@@ -93,8 +93,14 @@ const addOrUpdateReaction = async (userId, postId, type) => {
     return { action: 'updated', type };
 };
 
-const getLikesByType = async (postId, type) => {
-    return await Likes.find({ postId, type }).populate('userId', 'name');
+const getLikesByType = async ({ targetId, type }) => {
+    const query = { targetId };
+    if (type) query.type = type;
+    return await Likes.find(query).populate('userId', 'name');
 };
 
-export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };
+const getLikeByUserIdAndTargetIdAndTargetType = async ({ userId, targetId, targetType }) => {
+    return await Likes.findOne({ userId, targetId, targetType });
+};
+
+export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType, getLikeByUserIdAndTargetIdAndTargetType };

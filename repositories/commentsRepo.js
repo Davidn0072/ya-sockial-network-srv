@@ -13,7 +13,7 @@ const getAllComments = async ({ postId, page, limit }) => {
     const comments = await Comments.find({ postId })
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(limit + 1);
+        .limit(limit + 1).populate('userId', 'name');
     // console.log("getAllComments comments1:");
     //console.log("getAllComments comments:" + comments);
     const hasMore = comments.length > limit;

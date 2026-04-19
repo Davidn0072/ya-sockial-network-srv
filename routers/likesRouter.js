@@ -18,16 +18,21 @@ router.get('/', async (req, res) => {
 });
 
 // Get likes by type
-router.get('/by-type/:postId/:type', async (req, res) => {
+router.get('/by-type/:targetId', async (req, res) => {
     try {
-        //console.log('getLikesByType-req.query:', req.params);
-        const { postId, type } = req.params;
-        //console.log('getLikesByType-postId:', postId);
-        //console.log('getLikesByType-type:', type);
-        const likes = await likesService.getLikesByType(postId, type);
-
+        const { targetId } = req.params;
+        const likes = await likesService.getLikesByType({ targetId });
         res.send(likes);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
 
+router.get('/by-type/:targetId/:type', async (req, res) => {
+    try {
+        const { targetId, type } = req.params;
+        const likes = await likesService.getLikesByType({ targetId, type });
+        res.send(likes);
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -48,20 +53,22 @@ router.get('/:id', async (req, res) => {
 // Add a new like
 router.post('/', async (req, res) => {
     try {
-        const { postId, type } = req.body;
+        console.log("LikesRouter-POST-body:", req.body);
+
+        const { targetId, targetType, type } = req.body;
         const userId = req.user.id;
-        //console.log("likeRouter-req.user:", req.user);
-        //console.log("likeRouter-POST-userId:", userId + " postId: " + postId + " type: " + type);
 
         const result = await likesService.addOrUpdateReaction({
             userId,
-            postId,
+            targetId,
+            targetType,
             type
         });
 
         res.send(result);
+
     } catch (error) {
-        console.log("likeRouter-POST-error:", error);
+        console.log("likeRouter-error:", error);
         res.status(500).send(error.message);
     }
 });
