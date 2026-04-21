@@ -5,18 +5,22 @@ const getAllComments1 = (queries) => {
     return Comments.find(queries);
 };
 
-const getAllComments = async ({ postId, page, limit }) => {
-    const skip = (page - 1) * limit;
+const getAllComments = async ({ postId, parentCommentId, page, limit, sortDir = -1 }) => {
+    const numericSortDir = Number(sortDir) === 1 ? 1 : -1;
+    const safePage = Number(page) > 0 ? Number(page) : 1;
+    const safeLimit = Number(limit) > 0 ? Number(limit) : 10;
+    const skip = (safePage - 1) * safeLimit;
 
-    // console.log("getAllComments postId:" + postId + " page:" + page + " limit:" + limit + " skip:" + skip);
+    // console.log("getAllComments postId:" + postId + " parentCommentId:" + parentCommentId + " page:" + page + " limit:" + limit + " skip:" + skip);
 
-    const comments = await Comments.find({ postId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit + 1).populate('userId', 'name');
+    const comments = await Comments.find({ postId, parentCommentId })
+        .sort({ createdAt: numericSortDir })
+        //.skip(skip)
+        //.limit(limit + 1)
+        .populate('userId', 'name');
     // console.log("getAllComments comments1:");
     //console.log("getAllComments comments:" + comments);
-    const hasMore = comments.length > limit;
+    const hasMore = comments.length > safeLimit;
 
     if (hasMore) comments.pop();
 

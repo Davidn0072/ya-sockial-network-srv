@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const commentsSchema = new mongoose.Schema(
+const commentSchema = new mongoose.Schema(
     {
         content: {
             type: String,
@@ -14,27 +14,23 @@ const commentsSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true,
-            index: true,
         },
 
         postId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Post',
             required: true,
-            index: true,
         },
 
         parentCommentId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Comments',
             default: null,
-            index: true,
         },
 
         isDeleted: {
             type: Boolean,
             default: false,
-            index: true,
         },
 
         deletedAt: {
@@ -48,9 +44,8 @@ const commentsSchema = new mongoose.Schema(
     }
 );
 
-commentsSchema.index({ postId: 1, createdAt: -1 });
-commentsSchema.index({ postId: 1, parentCommentId: 1 });
+commentSchema.index({ postId: 1, parentCommentId: 1, createdAt: 1 });
 
-const Comments = mongoose.model('Comments', commentsSchema, 'comments');
+const Comment = mongoose.model('Comment', commentSchema, 'comments');
 
-export default Comments;
+export default Comment;

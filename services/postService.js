@@ -62,8 +62,10 @@ const getPostWithDetails = async (postId, query) => {
     //console.log("error1");
     const comments = await getAllComments({
         postId,
+        parentCommentId: null,
         page,
-        limit
+        limit,
+        sortDir: -1
     });
 
     const commentsWithLikes = await Promise.all(
