@@ -8,14 +8,15 @@ const router = express.Router();
 // Get Posts By User Id
 router.get('/user/:userId', async (req, res) => {
     try {
-        //console.log('getPostsByUserId: req.params:', req.params);
-        const { userId } = req.params;
+        //console.log('getPostsByUserId: queries:', JSON.stringify(queries, null, 2));
 
-        const posts = await postsService.getPostsByUserId(userId);
-
-        res.json(posts);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const posts = await postsService.getAllPosts({
+            ...req.query,
+            userId: req.params.userId
+        });
+        res.status(200).send(posts);
+    } catch (error) {
+        res.status(500).send(error);
     }
 });
 // Get All Posts

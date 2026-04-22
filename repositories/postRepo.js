@@ -1,10 +1,15 @@
 import Post from '../models/postModel.js';
 
 // Get All
-const getAllPosts = (queries) => {
-    return Post.find(queries).sort({ createdAt: -1 }).populate('userId', 'name');
+const getAllPosts = ({ query, options }) => {
+    //console.log('getAllPosts-Repo: query:', JSON.stringify(query, null, 2));
+    //console.log('getAllPosts-Repo: options:', JSON.stringify(options, null, 2));
+    return Post.find(query)
+        .sort(options.sort)
+        .populate('userId', 'name')
+        .skip(options.skip || 0)
+        .limit(options.limit);
 };
-
 // Get By ID
 const getPostById = (id) => {
     return Post.findById(id);
@@ -30,16 +35,4 @@ const getPostByFieldId = (queries) => {
     return Post.find(queries);
 };
 
-const getPostsByUserId = async (userId, page = 1, limit = 20) => {
-    const skip = (page - 1) * limit;
-    //console.log('getPostsByUserId: userId:', userId);
-    //console.log('getPostsByUserId: userId:', typeof userId);
-    //console.log('getPostsByUserId: userId:', JSON.stringify(userId));
-    return Post.find({ userId })
-        .sort({ createdAt: -1 })
-        .populate('userId', 'name');
-    //.skip(skip)
-    //.limit(limit);
-};
-
-export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostsByUserId };
+export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost };

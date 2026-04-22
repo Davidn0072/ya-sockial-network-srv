@@ -3,10 +3,38 @@ import { deleteManyLikes, getAllLikesGroupByType } from '../services/likesServic
 import { deleteManyComments, getAllComments } from '../services/commentsService.js';
 import { deleteManyDBUploadFiles, getAllDBUploadFiles } from '../services/dbUploadFilesService.js';
 import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
-
+import { buildPagination } from "../utils/pagination.js";
 // Get All
-const getAllPosts = (queries) => {
-    return postRepo.getAllPosts(queries);
+const buildFilter = ({ userId, category }) => {
+    const filter = {};
+
+    if (userId) filter.userId = userId;
+    if (category) filter.category = category;
+
+    return filter;
+};
+
+const getAllPosts = async (params) => {
+    const filter = buildFilter(params);
+    const { query, options } = buildPagination(params);
+    //console.log('getAllPosts-Service: query:', JSON.stringify(query, null, 2));
+    //console.log('getAllPosts-Service: filter:', JSON.stringify(filter, null, 2));
+    //console.log('getAllPosts-Service: options:', JSON.stringify(options, null, 2));
+
+    const posts = await postRepo.getAllPosts({
+        query: {
+            ...query,
+            ...filter
+        },
+        options
+    });
+
+    const lastPost = posts[posts.length - 1];
+
+    return {
+        posts,
+        nextCursor: lastPost ? lastPost._id : null
+    };
 };
 
 // Get By ID
@@ -98,8 +126,4 @@ const getPostWithDetails = async (postId, query) => {
     };
 };
 
-const getPostsByUserId = async (userId) => {
-    return postRepo.getPostsByUserId(userId);
-};
-
-export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails, getPostsByUserId };
+export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails };
