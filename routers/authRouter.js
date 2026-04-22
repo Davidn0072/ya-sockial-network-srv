@@ -3,6 +3,7 @@ dotenv.config();
 import express from 'express';
 import * as userService from '../services/userService.js';
 import * as authService from '../services/authService.js';
+import verifyTokenMiddleware from '../Middlewares/verifyTokenMiddleware.js';
 
 const router = express.Router();
 
@@ -31,6 +32,14 @@ router.post('/login', async (req, res) => {
     const status = error.status || 500;
     return res.status(status).json({ message: error.message });
   }
+});
+
+router.post("/logout", verifyTokenMiddleware, (req, res) => {
+
+  console.log("logout: " + JSON.stringify(req.user));
+
+  res.clearCookie("token");
+  res.status(200).json({ message: "Logged out" });
 });
 
 export default router;
