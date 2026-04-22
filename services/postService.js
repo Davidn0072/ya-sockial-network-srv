@@ -98,4 +98,8 @@ const getPostWithDetails = async (postId, query) => {
     };
 };
 
-export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails };
+const getPostsByUserId = async (userId) => {
+    return postRepo.getPostsByUserId(userId);
+};
+
+export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails, getPostsByUserId };

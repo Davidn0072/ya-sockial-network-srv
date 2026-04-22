@@ -50,4 +50,24 @@ const findOneByField = (field) => {
     });
 };
 
-export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField };
+const searchUsersByName = async (search) => {
+    const escapeRegex = (str) =>
+        str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const safeSearch = search?.trim();
+
+    const query = safeSearch
+        ? {
+            name: {
+                $regex: `^${escapeRegex(safeSearch)}`,
+                $options: 'i', // לא רגיש לאותיות
+            },
+        }
+        : {};
+
+    return User.find(query)
+        .limit(50)
+        .select('_id username name');
+};
+
+export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, searchUsersByName };

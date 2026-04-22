@@ -88,4 +88,7 @@ async function register({ name, email, password, confirmPassword }) {
     return newUser;
 }
 
-export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register };
+const searchUsersByName = async (search) => {
+    return userRepo.searchUsersByName(search);
+};
+export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName };

@@ -11,6 +11,7 @@ const postSchema = mongoose.Schema(
     { versionKey: false, timestamps: true }
 );
 
+postSchema.index({ userId: 1, createdAt: -1 });
 const Post = mongoose.model('Post', postSchema, 'posts');
 
 export default Post;

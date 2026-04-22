@@ -5,10 +5,24 @@ const router = express.Router();
 
 // Base URL: 'http://localhost:3000/posts'
 
+// Get Posts By User Id
+router.get('/user/:userId', async (req, res) => {
+    try {
+        //console.log('getPostsByUserId: req.params:', req.params);
+        const { userId } = req.params;
+
+        const posts = await postsService.getPostsByUserId(userId);
+
+        res.json(posts);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 // Get All Posts
 router.get('/', async (req, res) => {
     try {
         const queries = req.query
+        //console.log('getAllPosts: queries:', queries);
         const posts = await postsService.getAllPosts(queries);
         res.send(posts);
     } catch (error) {
@@ -19,6 +33,7 @@ router.get('/', async (req, res) => {
 // Get By Id
 router.get('/:id', async (req, res) => {
     try {
+        //console.log('getPostById: id:', req.params);
         const { id } = req.params;
         const post = await postsService.getPostById(id);
         res.send(post);

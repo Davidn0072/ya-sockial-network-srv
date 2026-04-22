@@ -2,7 +2,7 @@ import Post from '../models/postModel.js';
 
 // Get All
 const getAllPosts = (queries) => {
-    return Post.find(queries);
+    return Post.find(queries).sort({ createdAt: -1 }).populate('userId', 'name');
 };
 
 // Get By ID
@@ -30,4 +30,16 @@ const getPostByFieldId = (queries) => {
     return Post.find(queries);
 };
 
-export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost };
+const getPostsByUserId = async (userId, page = 1, limit = 20) => {
+    const skip = (page - 1) * limit;
+    //console.log('getPostsByUserId: userId:', userId);
+    //console.log('getPostsByUserId: userId:', typeof userId);
+    //console.log('getPostsByUserId: userId:', JSON.stringify(userId));
+    return Post.find({ userId })
+        .sort({ createdAt: -1 })
+        .populate('userId', 'name');
+    //.skip(skip)
+    //.limit(limit);
+};
+
+export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostsByUserId };

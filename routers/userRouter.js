@@ -6,9 +6,24 @@ const router = express.Router();
 // Base URL: 'http://localhost:3000/users'
 
 // Get All Users
+// Search Users (SPECIFIC)
+router.get('/search', async (req, res) => {
+    try {
+        //console.log('searchUsers: req.query:', req.query);
+        const { q } = req.query;
+        const users = await usersService.searchUsersByName(q);
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ error });
+    }
+});
+
+
+// Get All Users (GENERAL)
 router.get('/', async (req, res) => {
     try {
-        const queries = req.query
+        //console.log('getAllUsers: req.query:', req.query);
+        const queries = req.query;
         const users = await usersService.getAllUsers(queries);
         res.send(users);
     } catch (error) {
@@ -16,9 +31,11 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get By Id
+
+// Get By Id (DYNAMIC - MUST BE LAST)
 router.get('/:id', async (req, res) => {
     try {
+        //console.log('getUserById: req.params:', req.params);
         const { id } = req.params;
         const user = await usersService.getUserById(id);
         res.send(user);
