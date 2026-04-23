@@ -69,7 +69,7 @@ router.get('/:id', async (req, res) => {
 // Add a new like
 router.post('/', async (req, res) => {
     try {
-        console.log("LikesRouter-POST-body:", req.body);
+        //console.log("LikesRouter-POST-body:", req.body);
 
         const { targetId, targetType, type } = req.body;
         const userId = req.user.id;
