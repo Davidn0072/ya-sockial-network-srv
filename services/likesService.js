@@ -1,5 +1,6 @@
 import * as likesRepo from '../repositories/likesRepo.js';
 import * as postsService from './postService.js';
+import { buildPagination } from "../utils/pagination.js";
 // Get All
 const getAllLikes = (queries) => {
     return likesRepo.getAllLikes(queries);
@@ -87,8 +88,25 @@ const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
 };
 
 
-const getLikesByType = async ({ targetId, type }) => {
-    return await likesRepo.getLikesByType({ targetId, type });
+const getLikesByType = async (params) => {
+    const fldSearch = {
+        postId: params.postId,
+        reactionType: params.reactionType
+    };
+
+    const paginationParams = {
+        limit: 10,
+        cursor: params.cursor
+    };
+
+    const { query, options } = buildPagination(paginationParams);
+    const users = await likesRepo.getLikesByType(fldSearch.postId, fldSearch.reactionType, query, options);
+    const lastUser = users[users.length - 1];
+
+    return {
+        users,
+        nextCursor: lastUser ? lastUser._id : null
+    };
 };
 
 export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };

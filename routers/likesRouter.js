@@ -21,7 +21,14 @@ router.get('/', async (req, res) => {
 router.get('/by-type/:targetId', async (req, res) => {
     try {
         const { targetId } = req.params;
-        const likes = await likesService.getLikesByType({ targetId });
+        const params = {
+            ...req.query,
+            postId: targetId
+        };
+        //console.log("LikesRouter-GET-by-type-0-targetId:", targetId);
+        //console.log("LikesRouter-GET-by-type-0-req.query:", JSON.stringify(req.query, null, 2));
+        //console.log("LikesRouter-GET-by-type-0-req.params:", JSON.stringify(req.params, null, 2));
+        const likes = await likesService.getLikesByType(params);
         res.send(likes);
     } catch (error) {
         res.status(500).send(error.message);
@@ -31,7 +38,16 @@ router.get('/by-type/:targetId', async (req, res) => {
 router.get('/by-type/:targetId/:type', async (req, res) => {
     try {
         const { targetId, type } = req.params;
-        const likes = await likesService.getLikesByType({ targetId, type });
+        const params = {
+            ...req.query,
+            postId: targetId,
+            reactionType: type
+        };
+        //console.log("LikesRouter-GET-by-type-1-targetId:", targetId);
+        //console.log("LikesRouter-GET-by-type-1-type:", type);
+        //console.log("LikesRouter-GET-by-type-1-req.query:", JSON.stringify(req.query, null, 2));
+        //console.log("LikesRouter-GET-by-type-1-req.params:", JSON.stringify(req.params, null, 2));
+        const likes = await likesService.getLikesByType(params);
         res.send(likes);
     } catch (error) {
         res.status(500).send(error.message);

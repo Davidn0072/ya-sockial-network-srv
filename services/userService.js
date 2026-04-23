@@ -111,7 +111,7 @@ async function register({ name, email, password, confirmPassword }) {
 }
 
 const searchUsersByName = async (params) => {
-    console.log('searchUsersByName-Service: params-0:', JSON.stringify(params, null, 2));
+    //console.log('searchUsersByName-Service: params-0:', JSON.stringify(params, null, 2));
 
     const fldSearch = {
         q: params.q

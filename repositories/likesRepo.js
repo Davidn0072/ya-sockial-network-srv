@@ -93,14 +93,32 @@ const addOrUpdateReaction = async (userId, targetId, targetType, type) => {
     return { action: 'updated', type };
 };
 
-const getLikesByType = async ({ targetId, type }) => {
+const getLikesByType = async (postId, reactionType, genQuery, options) => {
+    const query = {
+        targetId: postId
+    };
+
+    if (reactionType) {
+        query.type = reactionType;
+    }
+
+    const finalQuery = { ...genQuery, ...query };
+
+    return await Likes.find(finalQuery)
+        .populate('userId', 'name')
+        .sort(options.sort)
+        .skip(options.skip || 0)
+        .limit(options.limit);
+};
+
+const countLikesByType = async ({ targetId, type }) => {
     const query = { targetId };
     if (type) query.type = type;
-    return await Likes.find(query).populate('userId', 'name');
+    return await Likes.countDocuments(query);
 };
 
 const getLikeByUserIdAndTargetIdAndTargetType = async ({ userId, targetId, targetType }) => {
     return await Likes.findOne({ userId, targetId, targetType });
 };
 
-export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType, getLikeByUserIdAndTargetIdAndTargetType };
+export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType, countLikesByType, getLikeByUserIdAndTargetIdAndTargetType };
