@@ -9,9 +9,10 @@ const router = express.Router();
 // Search Users (SPECIFIC)
 router.get('/search', async (req, res) => {
     try {
-        //console.log('searchUsers: req.query:', req.query);
-        const { q } = req.query;
-        const users = await usersService.searchUsersByName(q);
+        //console.log('searchUsers-Router: req.query:', JSON.stringify(req.query, null, 2));
+        //console.log('searchUsers-Router: req.params:', JSON.stringify(req.params, null, 2));
+        //const { q } = req.query;
+        const users = await usersService.searchUsersByName(req.query);
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ error });

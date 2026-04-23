@@ -2,12 +2,34 @@ import * as userRepo from '../repositories/userRepo.js';
 import { getPostByFieldId, deletePost } from '../services/postService.js';
 import { deleteManyFriends } from '../services/friendService.js';
 import { deleteManyLoginHistory } from './loginHistoryService.js';
-
+import { buildPagination } from "../utils/pagination.js";
 
 
 // Get All
-const getAllUsers = (queries) => {
-    return userRepo.getAllUsers(queries);
+const getAllUsers = async (queries) => {
+    const hasPaging = queries?.skip !== undefined || queries?.limit !== undefined;
+    if (!hasPaging) {
+        return userRepo.getAllUsers(queries);
+    }
+
+    const skip = Math.max(0, Number(queries.skip) || 0);
+    const limit = Math.max(1, Number(queries.limit) || 10);
+
+    const users = await userRepo.getUsersPage({
+        query: {},
+        options: {
+            sort: { _id: -1 },
+            skip,
+            limit
+        }
+    });
+
+    return {
+        users,
+        skip,
+        limit,
+        hasMore: users.length === limit
+    };
 };
 
 // Get By ID
@@ -88,7 +110,33 @@ async function register({ name, email, password, confirmPassword }) {
     return newUser;
 }
 
-const searchUsersByName = async (search) => {
-    return userRepo.searchUsersByName(search);
+const searchUsersByName = async (params) => {
+    console.log('searchUsersByName-Service: params-0:', JSON.stringify(params, null, 2));
+
+    const fldSearch = {
+        q: params.q
+    };
+
+    const paginationParams = {
+        limit: params.limit,
+        cursor: params.cursor
+    };
+
+    const { query, options } = buildPagination(paginationParams);
+    /*
+    console.log('searchUsersByName-Service: paginationParams:', JSON.stringify(paginationParams, null, 2));
+    console.log('searchUsersByName-Service: fldSearch:', JSON.stringify(fldSearch, null, 2));
+    console.log('searchUsersByName-Service: query:', JSON.stringify(query, null, 2));
+    console.log('searchUsersByName-Service: options:', JSON.stringify(options, null, 2));
+*/
+    const users = await userRepo.searchUsersByName(fldSearch.q, query, options);
+    const lastUser = users[users.length - 1];
+
+    //console.log('searchUsersByName-Service: lastUser:', JSON.stringify(lastUser, null, 2));
+
+    return {
+        users,
+        nextCursor: lastUser ? lastUser._id : null
+    };
 };
 export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName };

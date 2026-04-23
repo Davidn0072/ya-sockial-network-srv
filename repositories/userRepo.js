@@ -2,7 +2,18 @@ import User from '../models/userModel.js';
 
 // Get All
 const getAllUsers = (queries) => {
+    //console.log("getAllUsers: queries:", JSON.stringify(queries, null, 2));
+    //console.log("getAllUsers: User.find(queries):", JSON.stringify(User.find(queries), null, 2));
     return User.find(queries);
+};
+
+const getUsersPage = ({ query, options }) => {
+    //console.log("getUsersPage: query:", JSON.stringify(query, null, 2));
+    console.log("getUsersPage: options:", JSON.stringify(options, null, 2));
+    return User.find(query)
+        .sort(options.sort)
+        .skip(options.skip || 0)
+        .limit(options.limit);
 };
 
 // Get By ID
@@ -50,24 +61,37 @@ const findOneByField = (field) => {
     });
 };
 
-const searchUsersByName = async (search) => {
+const searchUsersByName = async (search, genQuery, options) => {
     const escapeRegex = (str) =>
         str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
+    /*
+        console.log('searchUsersByName-Repo: search:', JSON.stringify(search, null, 2));
+        console.log('searchUsersByName-Repo: genQuery:', JSON.stringify(genQuery, null, 2));
+        console.log('searchUsersByName-Repo: options:', JSON.stringify(options, null, 2));
+    */
     const safeSearch = search?.trim();
 
     const query = safeSearch
         ? {
             name: {
                 $regex: `^${escapeRegex(safeSearch)}`,
-                $options: 'i', // לא רגיש לאותיות
+                $options: 'i',
             },
         }
         : {};
 
-    return User.find(query)
-        .limit(50)
-        .select('_id username name');
+
+    const finalQuery = { ...genQuery, ...query };
+    /*    
+        console.log('searchUsersByName-Repo: safeSearch:', JSON.stringify(safeSearch, null, 2));
+        console.log('searchUsersByName-Repo: query:', JSON.stringify(query, null, 2));
+        console.log('searchUsersByName-Repo: finalQuery:', JSON.stringify(finalQuery, null, 2));
+    */
+    return User.find(finalQuery)
+        .select('_id username name')
+        .sort(options.sort)
+        .skip(options.skip || 0)
+        .limit(options.limit);
 };
 
-export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, searchUsersByName };
+export { getAllUsers, getUsersPage, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, searchUsersByName };
