@@ -1,9 +1,25 @@
 import * as dbUploadFilesRepo from '../repositories/dbUploadFilesRepo.js';
 import * as storageUploadFileRepo from '../repositories/storageUploadFileRepo.js';
+import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 
 // Get All
 const getAllDBUploadFiles = (queries) => {
     return dbUploadFilesRepo.getAllDBUploadFiles(queries);
+};
+
+// Get All Paged (cursor-based)
+const getAllDBUploadFilesPaged = async (params) => {
+    const { query, options } = buildPagination({
+        cursor: params.cursor,
+        limit: params.limit || 10
+    });
+
+    const files = await dbUploadFilesRepo.getDBUploadFilesPage({
+        query: { ...query, postId: params.postId },
+        options
+    });
+
+    return buildCursorResponse({ files });
 };
 
 // Get By ID
@@ -25,8 +41,6 @@ const updateDBUploadFile = (id, obj) => {
 const deleteDBUploadFile = async (id) => {
     const uploadfile = await getDBUploadFileById(id);
 
-    // console.log('uploadfile-service', uploadfile);
-
     if (!uploadfile) {
         throw new Error('File not found in DB');
     }
@@ -41,4 +55,4 @@ const deleteManyDBUploadFiles = (query) => {
     return dbUploadFilesRepo.deleteManyDBUploadFiles(query);
 };
 
-export { getAllDBUploadFiles, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles };
+export { getAllDBUploadFiles, getAllDBUploadFilesPaged, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles };

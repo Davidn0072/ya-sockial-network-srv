@@ -5,11 +5,22 @@ const router = express.Router();
 
 // Base URL: 'http://localhost:3000/persons'
 
-// Get All Persons
+// Get All
 router.get('/', async (req, res) => {
     try {
-        const queries = req.query
-        const comments = await commentsService.getAllComments(queries);
+        //console.log("getAllComments req.query:" + JSON.stringify(req.query));
+        const { postId, parentCommentId, cursor, limit } = req.query;
+        //console.log("getAllComments postId:" + postId + " parentCommentId:" + parentCommentId + " cursor:" + cursor + " limit:" + limit);
+        if (postId) {
+            const result = await commentsService.getAllCommentsPaged({
+                postId,
+                parentCommentId: parentCommentId ?? null,
+                cursor: cursor || null,
+                limit: limit ? Number(limit) : 10
+            });
+            return res.json(result);
+        }
+        const comments = await commentsService.getAllComments(req.query);
         res.send(comments);
     } catch (error) {
         res.status(500).send(error);
@@ -19,7 +30,9 @@ router.get('/', async (req, res) => {
 // Get By Id
 router.get('/:id', async (req, res) => {
     try {
+        //console.log("getCommentById req.params:" + JSON.stringify(req.params));
         const { id } = req.params;
+        // console.log("getCommentById id:" + id);
         const comment = await commentsService.getCommentById(id);
         res.send(comment);
     } catch (error) {

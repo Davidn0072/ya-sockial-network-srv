@@ -30,6 +30,14 @@ const getAllComments = async ({ postId, parentCommentId, page, limit, sortDir = 
     };
 };
 
+// Get Page (cursor-based)
+const getCommentsPage = ({ query = {}, options = {} }) => {
+    return Comments.find(query)
+        .sort(options.sort)
+        .limit(options.limit)
+        .populate('userId', 'name');
+};
+
 // Get By ID
 const getCommentById = (id) => {
     return Comments.findById(id);
@@ -55,4 +63,4 @@ const deleteManyComments = (query) => {
     return Comments.deleteMany(query);
 };
 
-export { getAllComments, getCommentById, addComment, updateComment, deleteComment, deleteManyComments };
+export { getAllComments, getCommentsPage, getCommentById, addComment, updateComment, deleteComment, deleteManyComments };

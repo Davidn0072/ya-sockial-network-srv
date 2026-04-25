@@ -5,6 +5,13 @@ const getAllDBUploadFiles = (queries) => {
     return dbUploadFilesModel.find(queries);
 };
 
+// Get Page (cursor-based)
+const getDBUploadFilesPage = ({ query = {}, options = {} }) => {
+    return dbUploadFilesModel.find(query)
+        .sort(options.sort)
+        .limit(options.limit);
+};
+
 // Get By ID
 const getDBUploadFileById = (id) => {
     return dbUploadFilesModel.findById(id);
@@ -30,4 +37,4 @@ const deleteManyDBUploadFiles = (query) => {
     return dbUploadFilesModel.deleteMany(query);
 };
 
-export { getAllDBUploadFiles, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles };
+export { getAllDBUploadFiles, getDBUploadFilesPage, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles };
