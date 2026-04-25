@@ -3,7 +3,7 @@ import { deleteManyLikes, getAllLikesGroupByType } from '../services/likesServic
 import { deleteManyComments, getAllComments } from '../services/commentsService.js';
 import { deleteManyDBUploadFiles, getAllDBUploadFiles } from '../services/dbUploadFilesService.js';
 import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
-import { buildPagination } from "../utils/pagination.js";
+import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { getRecommendedPostIds } from '../services/postRecommendation.service.js';
 import { getUserDomainOfInterest } from '../services/userService.js';
 // Get All
@@ -41,10 +41,12 @@ const getAllPosts = async (params) => {
 
     const lastPost = posts[posts.length - 1];
 
-    return {
+    /*return {
         posts,
         nextCursor: lastPost ? lastPost._id : null
-    };
+    };*/
+    const response = buildCursorResponse({ posts });
+    return response;
 };
 
 // Get By ID

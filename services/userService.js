@@ -130,14 +130,18 @@ const searchUsersByName = async (params) => {
     console.log('searchUsersByName-Service: options:', JSON.stringify(options, null, 2));
 */
     const users = await userRepo.searchUsersByName(fldSearch.q, query, options);
-    const lastUser = users[users.length - 1];
+
+    // const lastUser = users[users.length - 1];
 
     //console.log('searchUsersByName-Service: lastUser:', JSON.stringify(lastUser, null, 2));
-
-    return {
-        users,
-        nextCursor: lastUser ? lastUser._id : null
-    };
+    /*
+        return {
+            users,
+            nextCursor: lastUser ? lastUser._id : null
+        };
+        */
+    const response = buildCursorResponse({ users });
+    return response;
 };
 
 const getUserDomainOfInterest = (userId) => {

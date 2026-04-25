@@ -1,6 +1,6 @@
 import * as likesRepo from '../repositories/likesRepo.js';
 import * as postsService from './postService.js';
-import { buildPagination } from "../utils/pagination.js";
+import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 // Get All
 const getAllLikes = (queries) => {
     return likesRepo.getAllLikes(queries);
@@ -36,7 +36,7 @@ const getAllLikesGroupByType = async (queries) => {
 };
 const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
     try {
-        console.log("addOrUpdateReaction-input:", { userId, targetId, targetType, type });
+        //console.log("addOrUpdateReaction-input:", { userId, targetId, targetType, type });
 
 
         const existing = await likesRepo.getLikeByUserIdAndTargetIdAndTargetType({
@@ -45,7 +45,7 @@ const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
             targetType
         });
 
-        console.log("existing-reaction:", existing);
+        //console.log("existing-reaction:", existing);
 
         if (!existing) {
             const created = await likesRepo.addLike({
@@ -60,7 +60,7 @@ const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
                 reaction: created
             };
         }
-        console.log("addOrUpdateReaction-existing.type:", JSON.stringify(existing) + " type: " + type);
+        //console.log("addOrUpdateReaction-existing.type:", JSON.stringify(existing) + " type: " + type);
         if (existing.type === type) {
             await likesRepo.deleteLike(existing._id);
             console.log("deleteLike-existing:", existing._id);
@@ -101,12 +101,8 @@ const getLikesByType = async (params) => {
 
     const { query, options } = buildPagination(paginationParams);
     const users = await likesRepo.getLikesByType(fldSearch.postId, fldSearch.reactionType, query, options);
-    const lastUser = users[users.length - 1];
-
-    return {
-        users,
-        nextCursor: lastUser ? lastUser._id : null
-    };
+    const response = buildCursorResponse({ users });
+    return response;
 };
 
 export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };
