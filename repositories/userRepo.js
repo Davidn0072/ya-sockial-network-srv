@@ -94,4 +94,10 @@ const searchUsersByName = async (search, genQuery, options) => {
         .limit(options.limit);
 };
 
-export { getAllUsers, getUsersPage, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, searchUsersByName };
+const getUserDomainOfInterest = (userId) => {
+    return User.findById(userId).select('domainofinterest -_id').lean();
+}
+
+export {
+    getAllUsers, getUsersPage, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, searchUsersByName, getUserDomainOfInterest
+};

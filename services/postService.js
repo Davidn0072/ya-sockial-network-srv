@@ -4,6 +4,8 @@ import { deleteManyComments, getAllComments } from '../services/commentsService.
 import { deleteManyDBUploadFiles, getAllDBUploadFiles } from '../services/dbUploadFilesService.js';
 import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
 import { buildPagination } from "../utils/pagination.js";
+import { getRecommendedPostIds } from '../services/postRecommendation.service.js';
+import { getUserDomainOfInterest } from '../services/userService.js';
 // Get All
 const buildFilter = ({ userId, category }) => {
     const filter = {};
@@ -16,11 +18,19 @@ const buildFilter = ({ userId, category }) => {
 
 const getAllPosts = async (params) => {
     const filter = buildFilter(params);
+    const { search } = params;
     const { query, options } = buildPagination(params);
-    //console.log('getAllPosts-Service: query:', JSON.stringify(query, null, 2));
-    //console.log('getAllPosts-Service: filter:', JSON.stringify(filter, null, 2));
-    //console.log('getAllPosts-Service: options:', JSON.stringify(options, null, 2));
 
+    if (search) {
+        filter.content = { $regex: search, $options: 'i' };
+    }
+    /*
+    console.log('getAllPosts-Service: filter:', JSON.stringify(filter, null, 2));
+    console.log('getAllPosts-Service: query:', JSON.stringify(query, null, 2));
+    console.log('getAllPosts-Service: options:', JSON.stringify(options, null, 2));
+    console.log('getAllPosts-Service: search:', JSON.stringify(search, null, 2));
+    console.log('getAllPosts-Service: params:', JSON.stringify(params, null, 2));
+    */
     const posts = await postRepo.getAllPosts({
         query: {
             ...query,
@@ -126,4 +136,30 @@ const getPostWithDetails = async (postId, query) => {
     };
 };
 
-export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails };
+const getRecommendedPosts = async (userId) => {
+    //console.log('getRecommendedPosts-Service: userId:', userId);
+    const userDomainOfInterest = await getUserDomainOfInterest(userId);
+    //console.log('getRecommendedPosts-Service: userDomainOfInterest:', JSON.stringify(userDomainOfInterest, null, 2));
+    const posts = await postRepo.getAllPosts({
+        query: {
+            //  userId: { $ne: userId }
+        },
+        options: {
+            limit: 50
+        }
+    });
+    //console.log('getRecommendedPosts-Service: posts:', JSON.stringify(posts, null, 2));
+    /*
+    const interests = Array.isArray(userDomainOfInterest?.domainofinterest)
+        ? userDomainOfInterest.domainofinterest
+        : Object.values(userDomainOfInterest?.domainofinterest || {});
+    */
+    const interests = userDomainOfInterest?.domainofinterest;
+    const ids = await getRecommendedPostIds({ interests: interests || [], posts });
+    //console.log('getRecommendedPosts-Service: ids:', JSON.stringify(ids, null, 2));
+    const recommendedPosts = await postRepo.getByIds(ids);
+    //console.log('getRecommendedPosts-Service: recommendedPosts:', JSON.stringify(recommendedPosts, null, 2));
+    return recommendedPosts;
+};
+
+export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails, getRecommendedPosts };

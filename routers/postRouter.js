@@ -5,10 +5,25 @@ const router = express.Router();
 
 // Base URL: 'http://localhost:3000/posts'
 
+// Get Recommended Posts
+router.get('/recommended', async (req, res) => {
+    try {
+        //console.log('getRecommendedPosts-Router: queries:', JSON.stringify(req.query, null, 2));
+        //console.log('getRecommendedPosts-Router: params:', JSON.stringify(req.params, null, 2));
+        //console.log('getRecommendedPosts-Router: user:', JSON.stringify(req.user, null, 2));
+
+        const posts = await postsService.getRecommendedPosts(req.user.id);
+        res.status(200).send(posts);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 // Get Posts By User Id
 router.get('/user/:userId', async (req, res) => {
     try {
-        //console.log('getPostsByUserId: queries:', JSON.stringify(queries, null, 2));
+        //console.log('getPostsByUserId-Router: queries:', JSON.stringify(req.query, null, 2));
+        //console.log('getPostsByUserId-Router: params:', JSON.stringify(req.params, null, 2));
 
         const posts = await postsService.getAllPosts({
             ...req.query,
@@ -22,10 +37,13 @@ router.get('/user/:userId', async (req, res) => {
 // Get All Posts
 router.get('/', async (req, res) => {
     try {
+        //console.log('getAllPosts-Router: queries:', JSON.stringify(req.query, null, 2));
+        //console.log('getAllPosts-Router: params:', JSON.stringify(req.params, null, 2));
+
         const queries = req.query
         //console.log('getAllPosts: queries:', queries);
         const posts = await postsService.getAllPosts(queries);
-        res.send(posts);
+        res.status(200).send(posts);
     } catch (error) {
         res.status(500).send(error);
     }
@@ -34,7 +52,9 @@ router.get('/', async (req, res) => {
 // Get By Id
 router.get('/:id', async (req, res) => {
     try {
-        //console.log('getPostById: id:', req.params);
+        //console.log('getPostById-Router: queries:', JSON.stringify(req.query, null, 2));
+        //console.log('getPostById-Router: params:', JSON.stringify(req.params, null, 2));
+
         const { id } = req.params;
         const post = await postsService.getPostById(id);
         res.send(post);

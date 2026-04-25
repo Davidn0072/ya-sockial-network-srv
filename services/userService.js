@@ -139,4 +139,9 @@ const searchUsersByName = async (params) => {
         nextCursor: lastUser ? lastUser._id : null
     };
 };
-export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName };
+
+const getUserDomainOfInterest = (userId) => {
+    return userRepo.getUserDomainOfInterest(userId);
+}
+
+export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName, getUserDomainOfInterest };

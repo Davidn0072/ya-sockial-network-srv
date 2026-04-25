@@ -1,9 +1,7 @@
 import Post from '../models/postModel.js';
 
 // Get All
-const getAllPosts = ({ query, options }) => {
-    //console.log('getAllPosts-Repo: query:', JSON.stringify(query, null, 2));
-    //console.log('getAllPosts-Repo: options:', JSON.stringify(options, null, 2));
+const getAllPosts = ({ query = {}, options = {} } = {}) => {
     return Post.find(query)
         .sort(options.sort)
         .populate('userId', 'name')
@@ -35,4 +33,9 @@ const getPostByFieldId = (queries) => {
     return Post.find(queries);
 };
 
-export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost };
+// Get By IDs
+const getByIds = (ids) => {
+    return Post.find({ _id: { $in: ids } })
+        .populate('userId', 'name');
+};
+export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getByIds };
