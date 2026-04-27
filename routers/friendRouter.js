@@ -22,7 +22,7 @@ router.get("/requests", async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const data = await friendService.getRequestsByUserIdStatusRole(userId, "pending", "to");
+        const data = await friendService.getRequestsByUserIdStatusRole(userId, "pending", "to", req.query);
 
         res.status(200).send(data);
     } catch (err) {
@@ -34,7 +34,7 @@ router.get("/rejected", async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const data = await friendService.getRequestsByUserIdStatusRole(userId, "rejected", "to");
+        const data = await friendService.getRequestsByUserIdStatusRole(userId, "rejected", "to", req.query);
 
         res.status(200).send(data);
     } catch (err) {
@@ -46,7 +46,7 @@ router.get("/accepted", async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const data = await friendService.getFriends(userId);
+        const data = await friendService.getFriends(userId, req.query);
 
         res.status(200).send(data);
     } catch (err) {

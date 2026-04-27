@@ -1,4 +1,5 @@
 import * as friendRepo from '../repositories/friendRepo.js';
+import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 /*
 // Get All
 const getAllFriends = (queries) => {
@@ -110,14 +111,15 @@ const unfriend = async (id, userId, otherUserId) => {
     return friendRepo.deleteFriendRequest(relation._id);
 };
 
-const getFriends = async (userId) => {
-    const friends = await friendRepo.getFriends(userId);
+const getFriends = async (userId, params = {}) => {
+    const { query, options } = buildPagination(params);
 
-    return friends.map(f => {
+    const friends = await friendRepo.getFriends(userId, query, options);
+
+    const mappedFriends = friends.map(f => {
         const isMe = f.fromUserId._id.toString() === userId.toString();
 
         const friend = isMe ? f.toUserId : f.fromUserId;
-        // console.log("getFriends: " + JSON.stringify(friend));
 
         return {
             _id: f._id.toString(),
@@ -125,20 +127,24 @@ const getFriends = async (userId) => {
             name: friend.name
         };
     });
+
+    const response = buildCursorResponse({ friends: mappedFriends });
+    return response;
 };
 
 const getRequestsByUserIdStatusRole_OLD = async (userId, status, role) => {
     return friendRepo.getRequestsByUserIdStatusRole({ userId, status, role });
 };
 
-const getRequestsByUserIdStatusRole = async (userId, status, role) => {
-    const friends = await friendRepo.getRequestsByUserIdStatusRole({ userId, status, role });
+const getRequestsByUserIdStatusRole = async (userId, status, role, params = {}) => {
+    const { query, options } = buildPagination(params);
 
-    return friends.map(f => {
+    const friends = await friendRepo.getRequestsByUserIdStatusRole({ userId, status, role }, query, options);
+
+    const mappedFriends = friends.map(f => {
         const isMe = f.fromUserId._id.toString() === userId.toString();
 
         const friend = isMe ? f.toUserId : f.fromUserId;
-        // console.log("getFriends: " + JSON.stringify(friend));
 
         return {
             _id: f._id.toString(),
@@ -147,6 +153,8 @@ const getRequestsByUserIdStatusRole = async (userId, status, role) => {
         };
     });
 
+    const response = buildCursorResponse({ requests: mappedFriends });
+    return response;
 };
 
 export { createFriendRequest, deleteFriendRequest, sendFriendRequest, deleteManyFriends, findFriendRequestByFromAndToUserId, getIncomingRequests, acceptRequest, rejectRequest, getFriends, getRequestsByUserIdStatusRole };

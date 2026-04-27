@@ -97,10 +97,22 @@ const updateFriendRequestStatus = (requestId, status) => {
     return Friend.findByIdAndUpdate(requestId, { status }, { returnDocument: 'after' });//NEW TRUE RETURN THE UPDATED DOCUMENT NOT THE OLD ONE
 };
 
-const getFriends = (userId) => {
-    return Friend.find({ $or: [{ fromUserId: userId }, { toUserId: userId }], status: "accepted" })
+const getFriends = (userId, paginationQuery = {}, options = {}) => {
+    const query = {
+        $or: [{ fromUserId: userId }, { toUserId: userId }],
+        status: "accepted",
+        ...paginationQuery
+    };
+
+    let mongoQuery = Friend.find(query)
         .populate("fromUserId", "name")
         .populate("toUserId", "name");
+
+    if (options.sort) mongoQuery = mongoQuery.sort(options.sort);
+    if (options.limit) mongoQuery = mongoQuery.limit(options.limit);
+    if (options.skip) mongoQuery = mongoQuery.skip(options.skip);
+
+    return mongoQuery;
 };
 
 const buildFriendQuery = ({ userId, status, role }) => {
@@ -141,13 +153,20 @@ const buildFriendPopulate = (role) => {
     ];
 };
 
-const getRequestsByUserIdStatusRole = async ({ userId, status, role }) => {
-    const query = buildFriendQuery({ userId, status, role });
+const getRequestsByUserIdStatusRole = async ({ userId, status, role }, paginationQuery = {}, options = {}) => {
+    const baseQuery = buildFriendQuery({ userId, status, role });
+    const query = { ...baseQuery, ...paginationQuery };
     //console.log("getRequestsByUserIdStatusRole1: " + JSON.stringify(query));
     const populate = buildFriendPopulate(role);
     //console.log("getRequestsByUserIdStatusRole2: " + JSON.stringify(populate));
 
-    return Friend.find(query).populate(populate);
+    let mongoQuery = Friend.find(query).populate(populate);
+
+    if (options.sort) mongoQuery = mongoQuery.sort(options.sort);
+    if (options.limit) mongoQuery = mongoQuery.limit(options.limit);
+    if (options.skip) mongoQuery = mongoQuery.skip(options.skip);
+
+    return mongoQuery;
 };
 
 export { createFriendRequest, findFriendRequestByFromAndToUserId, getRequestsByUserIdStatusRole, getFriendRequestById, updateFriendRequestStatus, deleteFriendRequest, getFriends };
