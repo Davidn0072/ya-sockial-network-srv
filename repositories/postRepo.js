@@ -10,7 +10,7 @@ const getAllPosts = ({ query = {}, options = {} } = {}) => {
 };
 // Get By ID
 const getPostById = (id) => {
-    return Post.findById(id);
+    return Post.findById(id).populate('userId', 'name');
 };
 
 // Create
