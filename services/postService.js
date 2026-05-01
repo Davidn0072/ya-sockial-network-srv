@@ -6,6 +6,7 @@ import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { getRecommendedPostIds } from '../services/postRecommendation.service.js';
 import { getUserDomainOfInterest } from '../services/userService.js';
+import { AppError } from '../errors/AppError.js';
 
 // Get All
 const buildFilter = ({ userId, category }) => {
@@ -32,29 +33,43 @@ const getAllPosts = async (params) => {
         options
     });
 
-    const lastPost = posts[posts.length - 1];
-
     const response = buildCursorResponse({ posts });
     return response;
 };
 
 // Get By ID
-const getPostByFieldId = (queries) => {
-    return postRepo.getPostByFieldId(queries);
+const getPostByFieldId = async (queries) => {
+    const post = await postRepo.getPostByFieldId(queries);
+    if (!post) {
+        throw new AppError("Post not found", 404);
+    }
+    return post;
 };
 
-const getPostById = (id) => {
-    return postRepo.getPostById(id);
+const getPostById = async (id) => {
+    const post = await postRepo.getPostById(id);
+    if (!post) {
+        throw new AppError("Post not found", 404);
+    }
+    return post;
 };
 
 // Create
-const addPost = (obj) => {
-    return postRepo.addPost(obj);
+const addPost = async (obj) => {
+    const newPost = await postRepo.addPost(obj);
+    if (!newPost) {
+        throw new AppError("Failed to create post", 400);
+    }
+    return newPost;
 };
 
 // Update
-const updatePost = (id, obj) => {
-    return postRepo.updatePost(id, obj);
+const updatePost = async (id, obj) => {
+    const updatedPost = await postRepo.updatePost(id, obj);
+    if (!updatedPost) {
+        throw new AppError("Failed to update post", 400);
+    }
+    return updatedPost;
 };
 
 // Delete
@@ -62,7 +77,7 @@ const deletePost = async (id) => {
     const post = await getPostById(id);
 
     if (!post) {
-        return { error: 'Post not found' };
+        throw new AppError("Post not found", 404);
     }
 
     await deletePostFolder(id);
@@ -73,7 +88,11 @@ const deletePost = async (id) => {
         deleteManyDBUploadFiles({ postId: id })
     ]);
 
-    return await postRepo.deletePost(id);
+    const deletedPost = await postRepo.deletePost(id);
+    if (!deletedPost) {
+        throw new AppError("Failed to delete post", 400);
+    }
+    return deletedPost;
 };
 
 const getPostWithDetails = async (postId, query) => {
@@ -82,7 +101,7 @@ const getPostWithDetails = async (postId, query) => {
 
     const post = await postRepo.getPostById(postId);
     if (!post) {
-        return { error: 'Post not found' };
+        throw new AppError("Post not found", 404);
     }
 
     // Cursor-based pagination for comments
@@ -127,6 +146,9 @@ const getPostWithDetails = async (postId, query) => {
 
 const getRecommendedPosts = async (userId) => {
     const userDomainOfInterest = await getUserDomainOfInterest(userId);
+    if (!userDomainOfInterest) {
+        throw new AppError("User domain of interest not found", 404);
+    }
     const posts = await postRepo.getAllPosts({
         query: {},
         options: {
@@ -137,6 +159,9 @@ const getRecommendedPosts = async (userId) => {
     const interests = userDomainOfInterest?.domainofinterest;
     const ids = await getRecommendedPostIds({ interests: interests || [], posts });
     const recommendedPosts = await postRepo.getByIds(ids);
+    if (!recommendedPosts) {
+        throw new AppError("Recommended posts not found", 404);
+    }
     return recommendedPosts;
 };
 
