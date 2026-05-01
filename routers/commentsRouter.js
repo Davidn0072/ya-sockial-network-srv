@@ -1,9 +1,10 @@
 import express from 'express';
 import * as commentsService from '../services/commentsService.js';
+import { parseError } from '../errors/AppError.js';
 
 const router = express.Router();
 
-// Base URL: 'http://localhost:3000/persons'
+// Base URL: 'http://localhost:3000/comments'
 
 // Get All
 router.get('/', async (req, res) => {
@@ -21,9 +22,10 @@ router.get('/', async (req, res) => {
             return res.json(result);
         }
         const comments = await commentsService.getAllComments(req.query);
-        res.send(comments);
+        res.status(200).json(comments);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -34,43 +36,47 @@ router.get('/:id', async (req, res) => {
         const { id } = req.params;
         // console.log("getCommentById id:" + id);
         const comment = await commentsService.getCommentById(id);
-        res.send(comment);
+        res.status(200).json(comment);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
-// Add a new person
+// Add a new comment
 router.post('/', async (req, res) => {
     try {
         const commentObj = req.body;
         const newComment = await commentsService.addComment(commentObj);
-        res.send(`The new ID: ${newComment._id}`);
+        res.status(201).json({ message: `The new ID: ${newComment._id}` });
     } catch (error) {
-        res.status(500).send(error.message);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
-// Update a person
+// Update a comment
 router.patch('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.body;
         const result = await commentsService.updateComment(id, data);
-        res.send(result);
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
-// Delete a person
+// Delete a comment
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const result = await commentsService.deleteComment(id);
-        res.send(result);
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 

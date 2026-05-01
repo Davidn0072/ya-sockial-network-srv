@@ -1,5 +1,6 @@
 import * as commentsRepo from '../repositories/commentsRepo.js';
 import { buildPagination, buildCursorResponse } from '../utils/pagination.js';
+import { AppError } from '../errors/AppError.js';
 
 // Get All
 const getAllComments = (queries) => {
@@ -23,22 +24,38 @@ const getAllCommentsPaged = async (params) => {
 
 // Get By ID
 const getCommentById = (id) => {
-    return commentsRepo.getCommentById(id);
+    const comment = commentsRepo.getCommentById(id);
+    if (!comment) {
+        throw new AppError('Comment not found', 404);
+    }
+    return comment;
 };
 
 // Create
 const addComment = (obj) => {
-    return commentsRepo.addComment(obj);
+    const newComment = commentsRepo.addComment(obj);
+    if (!newComment) {
+        throw new AppError('Failed to create comment', 400);
+    }
+    return newComment;
 };
 
 // Update
 const updateComment = (id, obj) => {
-    return commentsRepo.updateComment(id, obj);
+    const updatedComment = commentsRepo.updateComment(id, obj);
+    if (!updatedComment) {
+        throw new AppError('Failed to update comment', 400);
+    }
+    return updatedComment;
 };
 
 // Delete
 const deleteComment = (id) => {
-    return commentsRepo.deleteComment(id);
+    const deletedComment = commentsRepo.deleteComment(id);
+    if (!deletedComment) {
+        throw new AppError('Failed to delete comment', 400);
+    }
+    return deletedComment;
 };
 
 // Delete many records
