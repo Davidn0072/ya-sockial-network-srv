@@ -1,5 +1,6 @@
 import express from 'express';
 import * as likesService from '../services/likesService.js';
+import { parseError } from '../errors/AppError.js';
 
 const router = express.Router();
 
@@ -11,9 +12,10 @@ router.get('/', async (req, res) => {
         //console.log('likeRouter-getAllLikes-req.query:', req.query);
         const queries = req.query
         const likes = await likesService.getAllLikes(queries);
-        res.send(likes);
+        res.status(200).json(likes);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -29,9 +31,10 @@ router.get('/by-type/:targetId', async (req, res) => {
         //console.log("LikesRouter-GET-by-type-0-req.query:", JSON.stringify(req.query, null, 2));
         //console.log("LikesRouter-GET-by-type-0-req.params:", JSON.stringify(req.params, null, 2));
         const likes = await likesService.getLikesByType(params);
-        res.send(likes);
+        res.status(200).json(likes);
     } catch (error) {
-        res.status(500).send(error.message);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -48,9 +51,10 @@ router.get('/by-type/:targetId/:type', async (req, res) => {
         //console.log("LikesRouter-GET-by-type-1-req.query:", JSON.stringify(req.query, null, 2));
         //console.log("LikesRouter-GET-by-type-1-req.params:", JSON.stringify(req.params, null, 2));
         const likes = await likesService.getLikesByType(params);
-        res.send(likes);
+        res.status(200).json(likes);
     } catch (error) {
-        res.status(500).send(error.message);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -60,9 +64,10 @@ router.get('/:id', async (req, res) => {
         //console.log('likeRouter-getLikeById-req.params:', req.params);
         const { id } = req.params;
         const like = await likesService.getLikeById(id);
-        res.send(like);
+        res.status(200).json(like);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -81,11 +86,11 @@ router.post('/', async (req, res) => {
             type
         });
 
-        res.send(result);
+        res.status(200).json(result);
 
     } catch (error) {
-        console.log("likeRouter-error:", error);
-        res.status(500).send(error.message);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -95,9 +100,10 @@ router.patch('/:id', async (req, res) => {
         const { id } = req.params;
         const data = req.body;
         const result = await likesService.updateLike(id, data);
-        res.send(result);
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -106,9 +112,10 @@ router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const result = await likesService.deleteLike(id);
-        res.send(result);
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 

@@ -1,6 +1,6 @@
 import * as likesRepo from '../repositories/likesRepo.js';
-import * as postsService from './postService.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
+import { AppError } from '../errors/AppError.js';
 // Get All
 const getAllLikes = (queries) => {
     return likesRepo.getAllLikes(queries);
@@ -8,27 +8,43 @@ const getAllLikes = (queries) => {
 
 // Get By ID
 const getLikeById = (id) => {
-    return likesRepo.getLikeById(id);
+    const like = likesRepo.getLikeById(id);
+    if (!like) {
+        throw new AppError("Like not found", 404);
+    }
+    return like;
 };
 
 // Create
 const addLike = (obj) => {
-    return likesRepo.addLike(obj);
+    const newLike = likesRepo.addLike(obj);
+    if (!newLike) {
+        throw new AppError("Failed to create like", 400);
+    }
+    return newLike;
 };
 
 // Update
 const updateLike = (id, obj) => {
-    return likesRepo.updateLike(id, obj);
+    const updatedLike = likesRepo.updateLike(id, obj);
+    if (!updatedLike) {
+        throw new AppError("Failed to update like", 400);
+    }
+    return updatedLike;
 };
 
 // Delete
 const deleteLike = (id) => {
-    return likesRepo.deleteLike(id);
+    const deletedLike = likesRepo.deleteLike(id);
+    if (!deletedLike) {
+        throw new AppError("Failed to delete like", 400);
+    }
+    return deletedLike;
 };
 
 // Delete many records
 const deleteManyLikes = (query) => {
-    console.log(query);
+    //console.log(query);
     return likesRepo.deleteManyLikes(query);
 };
 const getAllLikesGroupByType = async (queries) => {
@@ -63,7 +79,7 @@ const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
         //console.log("addOrUpdateReaction-existing.type:", JSON.stringify(existing) + " type: " + type);
         if (existing.type === type) {
             await likesRepo.deleteLike(existing._id);
-            console.log("deleteLike-existing:", existing._id);
+            //console.log("deleteLike-existing:", existing._id);
             return {
                 action: 'deleted',
                 reaction: null
@@ -81,9 +97,9 @@ const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
             reaction: updated
         };
 
-    } catch (err) {
-        console.error("addOrUpdateReaction-error:", err);
-        throw err;
+    } catch (error) {
+        const { status, message } = parseError(error);
+        throw new AppError(message, status);
     }
 };
 
