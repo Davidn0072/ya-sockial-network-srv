@@ -15,8 +15,6 @@ const getAllComments = async ({ postId, parentCommentId, page, limit, sortDir = 
 
     const comments = await Comments.find({ postId, parentCommentId })
         .sort({ createdAt: numericSortDir })
-        //.skip(skip)
-        //.limit(limit + 1)
         .populate('userId', 'name');
     // console.log("getAllComments comments1:");
     //console.log("getAllComments comments:" + comments);
