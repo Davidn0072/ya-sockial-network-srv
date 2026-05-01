@@ -1,5 +1,6 @@
 import express from 'express';
 const router = express.Router();
+import { parseError } from '../errors/AppError.js';
 
 import { storageUploadFile } from '../services/storageUploadFileService.js';
 import storageUploadFileMiddleware from '../Middlewares/storageUploadFileMiddleware.js';
@@ -16,7 +17,8 @@ router.post(
             const result = await storageUploadFileService.storageUploadFile(req, res);
             return res.status(200).json({ message: 'File uploaded successfully', result });
         } catch (error) {
-            return res.status(500).json({ message: error.message });
+            const { status, message } = parseError(error);
+            return res.status(status).json({ message });
         }
     }
 );
