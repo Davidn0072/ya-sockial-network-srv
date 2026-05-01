@@ -16,7 +16,8 @@ router.get('/search', async (req, res) => {
         const users = await usersService.searchUsersByName(req.query);
         res.status(200).json(users);
     } catch (error) {
-        res.status(500).json({ error });
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -27,9 +28,10 @@ router.get('/', async (req, res) => {
         //console.log('getAllUsers: req.query:', req.query);
         const queries = req.query;
         const users = await usersService.getAllUsers(queries);
-        res.send(users);
+        res.status(200).json(users);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -42,7 +44,8 @@ router.get('/:id', async (req, res) => {
         const user = await usersService.getUserById(id);
         res.send(user);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -51,9 +54,10 @@ router.post('/', async (req, res) => {
     try {
         const userObj = req.body;
         const newUser = await usersService.addUser(userObj);
-        res.send(`The new ID: ${newUser._id}`);
+        res.status(201).json({ message: `The new ID: ${newUser._id}` });
     } catch (error) {
-        res.status(500).send(error.message);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -77,7 +81,8 @@ router.delete('/:id', async (req, res) => {
         const result = await usersService.deleteUser(id);
         res.send(result);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 

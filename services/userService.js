@@ -2,7 +2,7 @@ import * as userRepo from '../repositories/userRepo.js';
 import { getPostByFieldId, deletePost } from '../services/postService.js';
 import { deleteManyFriends } from '../services/friendService.js';
 import { deleteManyLoginHistory } from './loginHistoryService.js';
-import { buildPagination } from "../utils/pagination.js";
+import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import bcrypt from 'bcrypt';
 import { AppError } from '../errors/AppError.js';
 
@@ -26,6 +26,10 @@ const getAllUsers = async (queries) => {
         }
     });
 
+    if (users.length === 0) {
+        throw new AppError('No users found', 404);
+    }
+
     return {
         users,
         skip,
@@ -35,13 +39,21 @@ const getAllUsers = async (queries) => {
 };
 
 // Get By ID
-const getUserById = (id) => {
-    return userRepo.getUserById(id);
+const getUserById = async (id) => {
+    const user = await userRepo.getUserById(id);
+    if (!user) {
+        throw new AppError('User not found', 404);
+    }
+    return user;
 };
 
 // Create
-const addUser = (obj) => {
-    return userRepo.addUser(obj);
+const addUser = async (obj) => {
+    const newUser = await userRepo.addUser(obj);
+    if (!newUser) {
+        throw new AppError('Failed to create user', 400);
+    }
+    return newUser;
 };
 
 // Update
@@ -76,11 +88,11 @@ const deleteUser = async (id) => {
     const user = await getUserById(id);
 
     if (!user) {
-        return res.status(404).send('User not found');
+        throw new AppError('User not found', 404);
     }
 
     const userPosts = await getPostByFieldId({ userId: id });
-    const postIds = userPosts.map(p => p.id);
+    const postIds = userPosts.map(p => p._id);
 
     await Promise.all(postIds.map(id => deletePost(id)));
 
@@ -133,6 +145,10 @@ const searchUsersByName = async (params) => {
 
     const { query, options } = buildPagination(paginationParams);
     const users = await userRepo.searchUsersByName(fldSearch.q, query, options);
+
+    if (users.length === 0) {
+        throw new AppError('No users found', 404);
+    }
 
     const response = buildCursorResponse({ users });
     return response;
