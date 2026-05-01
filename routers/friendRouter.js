@@ -1,5 +1,6 @@
 import express from 'express';
 import * as friendService from '../services/friendService.js';
+import { parseError } from '../errors/AppError.js';
 
 const router = express.Router();
 
@@ -12,9 +13,10 @@ router.post("/request", async (req, res) => {
 
         const result = await friendService.sendFriendRequest(fromUserId, toUserId);
 
-        res.status(201).send(result);
-    } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(201).json(result);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -24,9 +26,10 @@ router.get("/requests", async (req, res) => {
 
         const data = await friendService.getRequestsByUserIdStatusRole(userId, "pending", "to", req.query);
 
-        res.status(200).send(data);
-    } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(200).json(data);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -36,9 +39,10 @@ router.get("/rejected", async (req, res) => {
 
         const data = await friendService.getRequestsByUserIdStatusRole(userId, "rejected", "to", req.query);
 
-        res.status(200).send(data);
-    } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(200).json(data);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -48,9 +52,10 @@ router.get("/accepted", async (req, res) => {
 
         const data = await friendService.getFriends(userId, req.query);
 
-        res.status(200).send(data);
-    } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(200).json(data);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -62,9 +67,10 @@ router.post("/accept", async (req, res) => {
 
         const result = await friendService.acceptRequest(requestId, userId);
 
-        res.status(200).send(result);
-    } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(200).json(result);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -75,23 +81,22 @@ router.post("/reject", async (req, res) => {
 
         const result = await friendService.rejectRequest(requestId, userId);
 
-        res.status(200).send(result);
-    } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(200).json(result);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
 router.delete("/:id", async (req, res) => {
     try {
-        const userId = req.user.id;
-        const otherUserId = req.params.userId;
         const { id } = req.params;
-        //console.log("deleteFriendRequest: " + id + " " + userId + " " + otherUserId);
         await friendService.deleteFriendRequest(id);
 
-        res.status(200).send({ message: "Unfriended" });
-    } catch (err) {
-        res.status(400).send({ error: err.message });
+        res.status(200).json({ message: "Unfriended" });
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
