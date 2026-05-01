@@ -4,7 +4,7 @@ import express from 'express';
 import * as userService from '../services/userService.js';
 import * as authService from '../services/authService.js';
 import verifyTokenMiddleware from '../Middlewares/verifyTokenMiddleware.js';
-import { parseError } from '../utils/error.js';
+import { parseError } from '../errors/AppError.js';
 
 const router = express.Router();
 

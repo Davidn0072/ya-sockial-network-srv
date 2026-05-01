@@ -2,7 +2,7 @@ import * as userService from '../services/userService.js';
 import jwt from 'jsonwebtoken';
 import * as loginHistoryService from '../services/loginHistoryService.js';
 import bcrypt from 'bcrypt';
-import { AppError } from '../utils/error.js';
+import { AppError } from '../errors/AppError.js';
 
 async function login(email, password, ip) {
     const user = await userService.getUserByEmailAndPassword(email);
