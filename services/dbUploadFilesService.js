@@ -1,6 +1,7 @@
 import * as dbUploadFilesRepo from '../repositories/dbUploadFilesRepo.js';
 import * as storageUploadFileRepo from '../repositories/storageUploadFileRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
+import { AppError } from '../errors/AppError.js';
 
 // Get All
 const getAllDBUploadFiles = (queries) => {
@@ -24,17 +25,29 @@ const getAllDBUploadFilesPaged = async (params) => {
 
 // Get By ID
 const getDBUploadFileById = (id) => {
-    return dbUploadFilesRepo.getDBUploadFileById(id);
+    const uploadfile = dbUploadFilesRepo.getDBUploadFileById(id);
+    if (!uploadfile) {
+        throw new AppError('File not found in DB', 404);
+    }
+    return uploadfile;
 };
 
 // Create
 const addDBUploadFile = (obj) => {
-    return dbUploadFilesRepo.addDBUploadFile(obj);
+    const newUploadFile = dbUploadFilesRepo.addDBUploadFile(obj);
+    if (!newUploadFile) {
+        throw new AppError('Failed to create file in DB', 400);
+    }
+    return newUploadFile;
 };
 
 // Update
 const updateDBUploadFile = (id, obj) => {
-    return dbUploadFilesRepo.updateDBUploadFile(id, obj);
+    const updatedUploadFile = dbUploadFilesRepo.updateDBUploadFile(id, obj);
+    if (!updatedUploadFile) {
+        throw new AppError('Failed to update file in DB', 400);
+    }
+    return updatedUploadFile;
 };
 
 // Delete
@@ -42,7 +55,7 @@ const deleteDBUploadFile = async (id) => {
     const uploadfile = await getDBUploadFileById(id);
 
     if (!uploadfile) {
-        throw new Error('File not found in DB');
+        throw new AppError('File not found in DB', 404);
     }
 
     await storageUploadFileRepo.deleteStorageFileInfo(uploadfile.postId + '/' + uploadfile.storageFileName);

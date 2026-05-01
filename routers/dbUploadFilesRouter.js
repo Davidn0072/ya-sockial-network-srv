@@ -1,5 +1,6 @@
 import express from 'express';
 import * as dbUploadFilesService from '../services/dbUploadFilesService.js';
+import { parseError } from '../errors/AppError.js';
 
 const router = express.Router();
 
@@ -10,9 +11,10 @@ router.get('/', async (req, res) => {
     try {
         const queries = req.query
         const uploadfiles = await dbUploadFilesService.getAllDBUploadFiles(queries);
-        res.send(uploadfiles);
+        res.status(200).json(uploadfiles);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -21,9 +23,10 @@ router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const uploadfile = await dbUploadFilesService.getDBUploadFileById(id);
-        res.send(uploadfile);
+        res.status(200).json(uploadfile);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -32,9 +35,10 @@ router.post('/', async (req, res) => {
     try {
         const uploadfileObj = req.body;
         const newUploadFile = await dbUploadFilesService.addDBUploadFile(uploadfileObj);
-        res.send(`The new ID: ${newUploadFile._id}`);
+        res.status(201).json({ message: `The new ID: ${newUploadFile._id}` });
     } catch (error) {
-        res.status(500).send(error.message);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
@@ -44,21 +48,23 @@ router.patch('/:id', async (req, res) => {
         const { id } = req.params;
         const data = req.body;
         const result = await dbUploadFilesService.updateDBUploadFile(id, data);
-        res.send(result);
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
-// Delete a person
+// Delete a upload file
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        console.log('Deleting file:', id);
+        //console.log('Deleting file:', id);
         const result = await dbUploadFilesService.deleteDBUploadFile(id);
-        res.send(result);
+        res.status(200).json(result);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
