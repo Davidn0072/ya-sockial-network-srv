@@ -3,6 +3,8 @@ import { getPostByFieldId, deletePost } from '../services/postService.js';
 import { deleteManyFriends } from '../services/friendService.js';
 import { deleteManyLoginHistory } from './loginHistoryService.js';
 import { buildPagination } from "../utils/pagination.js";
+import bcrypt from 'bcrypt';
+import { AppError } from '../errors/AppError.js';
 
 
 // Get All
@@ -43,29 +45,44 @@ const addUser = (obj) => {
 };
 
 // Update
-const updateUser = (id, obj) => {
-    return userRepo.updateUser(id, obj);
-};
+async function updateUser(userId, data) {
+    const { name, email } = data;
+
+    if (name) await checkNameUnique(name, userId);
+    if (email) validateEmail(email);
+    if (email) await checkEmailUnique(email, userId);
+
+    if (data.newPassword) {
+        const user = await userRepo.getUserByIdAndPassword(userId);
+        if (!user) {
+            throw new AppError('User not found', 404);
+        }
+        const isMatch = await bcrypt.compare(data.oldPassword, user.password);
+        if (!isMatch) {
+            throw new AppError('Old password is not correct', 400);
+        }
+        validatePasswordMatch(data.newPassword, data.confirmPassword);
+        data.password = data.newPassword;
+        delete data.newPassword;
+        delete data.oldPassword;
+        delete data.confirmPassword;
+    }
+    return userRepo.updateUser(userId, data);
+}
+
 
 // Delete
 const deleteUser = async (id) => {
-    //console.log("User-before delete-0:" + id);
     const user = await getUserById(id);
-    //console.log("User-after getUserById-0:" + user);
 
     if (!user) {
         return res.status(404).send('User not found');
     }
-    // console.log("User-before delete-1:" + id);
+
     const userPosts = await getPostByFieldId({ userId: id });
-    //console.log("User-after getPostById-1:" + userPosts);
     const postIds = userPosts.map(p => p.id);
-    //console.log("User-before delete-2:" + postIds);
 
     await Promise.all(postIds.map(id => deletePost(id)));
-
-    //console.log("User-after delete-3:" + postIds);
-    //console.log("User-before delete-3:" + id);
 
     await Promise.all([
         deleteManyFriends({ userId: id }),
@@ -75,8 +92,8 @@ const deleteUser = async (id) => {
     return await userRepo.deleteUser(id);
 };
 
-const getUserByEmailAndPassword = (email, password) => {
-    return userRepo.getUserByEmailAndPassword(email, password);
+const getUserByEmailAndPassword = (email) => {
+    return userRepo.getUserByEmailAndPassword(email);
 };
 const isNameExists = (name) => {
     return userRepo.isNameExists(name);
@@ -84,34 +101,26 @@ const isNameExists = (name) => {
 const isEmailExists = (email) => {
     return userRepo.isEmailExists(email);
 };
-const findOneByField = (field) => {//case insensitive search
-    return userRepo.findOneByField(field);
-};
 
-async function register({ name, email, password, confirmPassword }) {
-
-    //console.log("register: " + name + " " + email + " " + password + " " + confirmPassword + " " + (password === confirmPassword));
-
-    const isNameExists = await findOneByField({ name: name });
-    if (isNameExists) {
-        throw new Error('Name already exists');
-    }
-
-    const isEmailExists = await findOneByField({ email: email });
-    if (isEmailExists) {
-        throw new Error('Email already exists');
-    }
-
+function validatePasswordMatch(password, confirmPassword) {
     if (password !== confirmPassword) {
-        throw new Error('Password and confirm password do not match');
+        throw new AppError('Password and confirm password do not match', 400);
     }
+}
 
-    const newUser = await addUser({ name, email, password });
-    return newUser;
+async function register(data) {
+    const { name, email, password, confirmPassword } = data;
+
+    await checkNameUnique(name);
+    validateEmail(email);
+    await checkEmailUnique(email);
+
+    validatePasswordMatch(password, confirmPassword);
+
+    return await addUser({ name, email, password });
 }
 
 const searchUsersByName = async (params) => {
-    //console.log('searchUsersByName-Service: params-0:', JSON.stringify(params, null, 2));
 
     const fldSearch = {
         q: params.q
@@ -123,23 +132,8 @@ const searchUsersByName = async (params) => {
     };
 
     const { query, options } = buildPagination(paginationParams);
-    /*
-    console.log('searchUsersByName-Service: paginationParams:', JSON.stringify(paginationParams, null, 2));
-    console.log('searchUsersByName-Service: fldSearch:', JSON.stringify(fldSearch, null, 2));
-    console.log('searchUsersByName-Service: query:', JSON.stringify(query, null, 2));
-    console.log('searchUsersByName-Service: options:', JSON.stringify(options, null, 2));
-*/
     const users = await userRepo.searchUsersByName(fldSearch.q, query, options);
 
-    // const lastUser = users[users.length - 1];
-
-    //console.log('searchUsersByName-Service: lastUser:', JSON.stringify(lastUser, null, 2));
-    /*
-        return {
-            users,
-            nextCursor: lastUser ? lastUser._id : null
-        };
-        */
     const response = buildCursorResponse({ users });
     return response;
 };
@@ -147,5 +141,30 @@ const searchUsersByName = async (params) => {
 const getUserDomainOfInterest = (userId) => {
     return userRepo.getUserDomainOfInterest(userId);
 }
+async function checkNameUnique(name, excludeUserId = null) {
+    const user = await findOneByField({ name });
+    if (user && user._id.toString() !== excludeUserId) {
+        throw new AppError('Name already exists', 400);
+    }
+}
 
+async function checkEmailUnique(email, excludeUserId = null) {
+    const user = await findOneByField({ email });
+
+    if (user && user._id.toString() !== excludeUserId) {
+        throw new AppError('Email already exists', 400);
+    }
+}
+
+const findOneByField = (field) => {//case insensitive search
+    return userRepo.findOneByField(field);
+};
+
+function validateEmail(email) {
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email)) {
+        throw new AppError('Invalid email address', 400);
+    }
+}
 export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName, getUserDomainOfInterest };
+

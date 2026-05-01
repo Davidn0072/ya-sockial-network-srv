@@ -1,5 +1,6 @@
 import express from 'express';
 import * as usersService from '../services/userService.js';
+import { parseError } from '../errors/AppError.js';
 
 const router = express.Router();
 
@@ -62,9 +63,10 @@ router.patch('/:id', async (req, res) => {
         const { id } = req.params;
         const data = req.body;
         const result = await usersService.updateUser(id, data);
-        res.send(result);
+        res.status(200).send(result);
     } catch (error) {
-        res.status(500).send(error);
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
     }
 });
 
