@@ -4,6 +4,7 @@ import express from 'express';
 import * as userService from '../services/userService.js';
 import * as authService from '../services/authService.js';
 import verifyTokenMiddleware from '../Middlewares/verifyTokenMiddleware.js';
+import { parseError } from '../utils/error.js';
 
 const router = express.Router();
 
@@ -17,7 +18,8 @@ router.post('/register', async (req, res) => {
 
     return res.status(200).json({ success: true, message: 'User registered successfully', user });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    const { status, message } = parseError(error);
+    res.status(status).json({ message });
   }
 });
 
@@ -29,16 +31,13 @@ router.post('/login', async (req, res) => {
 
     return res.status(200).json(result);
   } catch (error) {
-    const status = error.status || 500;
-    return res.status(status).json({ message: error.message });
+    const { status, message } = parseError(error);
+    res.status(status).json({ message });
   }
 });
 
 router.post("/logout", verifyTokenMiddleware, (req, res) => {
-
-  console.log("logout: " + JSON.stringify(req.user));
-
-  res.clearCookie("token");
+  //res.clearCookie("token");
   res.status(200).json({ message: "Logged out" });
 });
 

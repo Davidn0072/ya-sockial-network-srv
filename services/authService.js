@@ -2,6 +2,7 @@ import * as userService from '../services/userService.js';
 import jwt from 'jsonwebtoken';
 import * as loginHistoryService from '../services/loginHistoryService.js';
 import bcrypt from 'bcrypt';
+import { AppError } from '../utils/error.js';
 
 async function login(email, password, ip) {
     const user = await userService.getUserByEmailAndPassword(email);
@@ -9,16 +10,12 @@ async function login(email, password, ip) {
     //console.log("user: " + JSON.stringify(user));
 
     if (!user) {
-        const error = new Error('the email and password are not found in the database');
-        error.status = 401;
-        throw error;
+        throw new AppError('the email and password are not found in the database', 401);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        const error = new Error('the email and password are not found in the database');
-        error.status = 401;
-        throw error;
+        throw new AppError('the password is incorrect', 401);
     }
 
     //console.log("user: " + JSON.stringify(user));
