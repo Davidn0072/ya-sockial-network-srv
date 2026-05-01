@@ -169,4 +169,6 @@ const getRequestsByUserIdStatusRole = async ({ userId, status, role }, paginatio
     return mongoQuery;
 };
 
-export { createFriendRequest, findFriendRequestByFromAndToUserId, getRequestsByUserIdStatusRole, getFriendRequestById, updateFriendRequestStatus, deleteFriendRequest, getFriends };
+export {
+    createFriendRequest, findFriendRequestByFromAndToUserId, getRequestsByUserIdStatusRole, getFriendRequestById, updateFriendRequestStatus, deleteFriendRequest, getFriends, deleteManyFriends
+};
