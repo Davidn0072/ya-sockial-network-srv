@@ -59,8 +59,20 @@ chat.use((socket, next) => {
 chat.on('connection', async (socket) => {
     //console.log('User connected:', socket.userId);
 
-    socket.on('chat message', (msg) => {
-        chat.emit('chat message', `${msg}`);
+    socket.on('chat message', async (msg) => {
+        if (!msg || msg.trim() === '') {
+            return;
+        }
+        try {
+            const user = await getUserById(socket.userId);
+            chat.emit('chat message', {
+                from: user.name,
+                msg: msg,
+                timestamp: new Date()
+            });
+        } catch (error) {
+            socket.emit('error', { message: 'Failed to send message' });
+        }
     });
 
     socket.on('join private', async ({ targetUserId }) => {
@@ -79,19 +91,28 @@ chat.on('connection', async (socket) => {
 
         socket.join(room);
 
-        console.log(`User ${socket.userId} joined ${room}`);
+        //console.log(`User ${socket.userId} joined ${room}`);
     });
 
-    socket.on('private message', ({ msg, targetUserId }) => {
-        const room = createRoom(socket.userId, targetUserId);
-        chat.to(room).emit('private message', {
-            from: socket.userId,
-            msg
-        });
+    socket.on('private message', async ({ msg, targetUserId }) => {
+        if (!msg || msg.trim() === '') {
+            return;
+        }
+        try {
+            const user = await getUserById(socket.userId);
+            const room = createRoom(socket.userId, targetUserId);
+            chat.to(room).emit('private message', {
+                from: user.name,
+                msg
+            });
+        } catch (error) {
+            socket.emit('error', { message: 'Failed to send message' });
+        }
     });
 
     socket.on('disconnect', () => {
-        console.log('User disconnected');
+        socket.rooms.forEach(room => socket.leave(room));
+        //console.log('User disconnected');
     });
 });
 
