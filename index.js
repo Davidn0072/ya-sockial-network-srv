@@ -13,6 +13,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import storageUploadFileRouter from './routers/storageUploadFileRouter.js';
+import { getUserById } from './services/userService.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -48,21 +49,32 @@ chat.use((socket, next) => {
     try {
         const payload = jwt.verify(token, process.env.SECRET_KEY);
         socket.userId = payload.id;
-        console.log(socket.userId);
+        //  console.log(socket.userId);
         next();
     } catch {
         next(new Error('Invalid token'));
     }
 });
 
-chat.on('connection', (socket) => {
-    console.log('User connected:', socket.userId);
+chat.on('connection', async (socket) => {
+    //console.log('User connected:', socket.userId);
 
     socket.on('chat message', (msg) => {
         chat.emit('chat message', `${msg}`);
     });
 
-    socket.on('join private', ({ targetUserId }) => {
+    socket.on('join private', async ({ targetUserId }) => {
+        // Validate targetUserId exists and is not same as current user
+        if (!targetUserId || targetUserId === socket.userId) {
+            return socket.emit('error', { message: 'Invalid target user' });
+        }
+
+        // Check if user exists in database
+        const userExists = await getUserById(targetUserId);
+        if (!userExists) {
+            return socket.emit('error', { message: 'User not found' });
+        }
+
         const room = createRoom(socket.userId, targetUserId);
 
         socket.join(room);
