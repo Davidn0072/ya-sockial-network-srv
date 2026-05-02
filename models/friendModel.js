@@ -19,4 +19,16 @@ const friendRequestSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
+friendRequestSchema.index({ toUserId: 1 });
+friendRequestSchema.index({ fromUserId: 1 });
+friendRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+friendRequestSchema.index({ toUserId: 1, status: 1 });
+
+friendRequestSchema.pre('save', function (next) {
+    if (this.fromUserId.equals(this.toUserId)) {
+        throw new Error('Cannot send friend request to yourself');
+    }
+    next();
+});
+
 export default mongoose.model("FriendRequest", friendRequestSchema);
