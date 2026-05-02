@@ -2,19 +2,19 @@ import dbUploadFilesModel from '../models/dbUploadFilesModel.js';
 
 // Get All
 const getAllDBUploadFiles = (queries) => {
-    return dbUploadFilesModel.find(queries);
+    return dbUploadFilesModel.find(queries).lean();
 };
 
 // Get Page (cursor-based)
 const getDBUploadFilesPage = ({ query = {}, options = {} }) => {
     return dbUploadFilesModel.find(query)
         .sort(options.sort)
-        .limit(options.limit);
+        .limit(options.limit).lean();
 };
 
 // Get By ID
 const getDBUploadFileById = (id) => {
-    return dbUploadFilesModel.findById(id);
+    return dbUploadFilesModel.findById(id).lean();
 };
 
 // Create
@@ -24,7 +24,7 @@ const addDBUploadFile = (obj) => {
 
 // Update
 const updateDBUploadFile = (id, obj) => {
-    return dbUploadFilesModel.findByIdAndUpdate(id, obj);
+    return dbUploadFilesModel.findByIdAndUpdate(id, obj, { new: true });
 };
 
 // Delete

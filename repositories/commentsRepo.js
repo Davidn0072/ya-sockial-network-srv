@@ -2,7 +2,7 @@ import Comments from '../models/commentsModel.js';
 
 // Get All
 const getAllComments1 = (queries) => {
-    return Comments.find(queries);
+    return Comments.find(queries).lean();
 };
 
 const getAllComments = async ({ postId, parentCommentId, page, limit, sortDir = -1 }) => {
@@ -15,7 +15,7 @@ const getAllComments = async ({ postId, parentCommentId, page, limit, sortDir = 
 
     const comments = await Comments.find({ postId, parentCommentId })
         .sort({ createdAt: numericSortDir })
-        .populate('userId', 'name');
+        .populate('userId', 'name').lean();
     // console.log("getAllComments comments1:");
     //console.log("getAllComments comments:" + comments);
     const hasMore = comments.length > safeLimit;
@@ -33,12 +33,12 @@ const getCommentsPage = ({ query = {}, options = {} }) => {
     return Comments.find(query)
         .sort(options.sort)
         .limit(options.limit)
-        .populate('userId', 'name');
+        .populate('userId', 'name').lean();
 };
 
 // Get By ID
 const getCommentById = (id) => {
-    return Comments.findById(id);
+    return Comments.findById(id).lean();
 };
 
 // Create
@@ -48,7 +48,7 @@ const addComment = (obj) => {
 
 // Update
 const updateComment = (id, obj) => {
-    return Comments.findByIdAndUpdate(id, obj);
+    return Comments.findByIdAndUpdate(id, obj, { new: true });
 };
 
 // Delete

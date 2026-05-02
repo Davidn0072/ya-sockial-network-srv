@@ -6,11 +6,11 @@ const getAllPosts = ({ query = {}, options = {} } = {}) => {
         .sort(options.sort)
         .populate('userId', 'name')
         .skip(options.skip || 0)
-        .limit(options.limit);
+        .limit(options.limit).lean();
 };
 // Get By ID
 const getPostById = (id) => {
-    return Post.findById(id).populate('userId', 'name');
+    return Post.findById(id).populate('userId', 'name').lean();
 };
 
 // Create
@@ -20,7 +20,7 @@ const addPost = (obj) => {
 
 // Update
 const updatePost = (id, obj) => {
-    return Post.findByIdAndUpdate(id, obj);
+    return Post.findByIdAndUpdate(id, obj, { new: true });
 };
 
 // Delete
@@ -30,12 +30,12 @@ const deletePost = (id) => {
 
 // Get By Field ID
 const getPostByFieldId = (queries) => {
-    return Post.find(queries);
+    return Post.find(queries).lean();
 };
 
 // Get By IDs
 const getByIds = (ids) => {
     return Post.find({ _id: { $in: ids } })
-        .populate('userId', 'name');
+        .populate('userId', 'name').lean();
 };
 export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getByIds };

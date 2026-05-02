@@ -32,7 +32,7 @@ const deleteManyFriends = (query) => {
 
 // Get By ID
 const getFriendRequestById = (id) => {
-    return Friend.findById(id);
+    return Friend.findById(id).lean();
 };
 
 const findFriendRequestByFromAndToUserId = (fromUserId, toUserId) => {
@@ -41,7 +41,7 @@ const findFriendRequestByFromAndToUserId = (fromUserId, toUserId) => {
             { fromUserId, toUserId },
             { fromUserId: toUserId, toUserId: fromUserId }
         ]
-    });
+    }).lean();
 };
 
 const createFriendRequest = (fromUserId, toUserId) => {
@@ -78,23 +78,23 @@ const getRequestsByUserIdStatusRole_OLD = async ({ userId, status, role }) => {
     let mongoQuery = Friend.find(query);
 
     if (role === "from") {
-        console.log("getRequestsByUserIdStatusRole3: from");
-        mongoQuery = mongoQuery.populate("toUserId", "name");
+        //console.log("getRequestsByUserIdStatusRole3: from");
+        mongoQuery = mongoQuery.populate("toUserId", "name").lean();
     } else if (role === "to") {
-        console.log("getRequestsByUserIdStatusRole3: to");
-        mongoQuery = mongoQuery.populate("fromUserId", "name");
+        //console.log("getRequestsByUserIdStatusRole3: to");
+        mongoQuery = mongoQuery.populate("fromUserId", "name").lean();
     } else {
-        console.log("getRequestsByUserIdStatusRole3: all");
+        //console.log("getRequestsByUserIdStatusRole3: all");
         mongoQuery = mongoQuery
             .populate("fromUserId", "name")
-            .populate("toUserId", "name");
+            .populate("toUserId", "name").lean();
     }
 
     return mongoQuery;
 };
 
 const updateFriendRequestStatus = (requestId, status) => {
-    return Friend.findByIdAndUpdate(requestId, { status }, { returnDocument: 'after' });//NEW TRUE RETURN THE UPDATED DOCUMENT NOT THE OLD ONE
+    return Friend.findByIdAndUpdate(requestId, { status }, { new: true });
 };
 
 const getFriends = (userId, paginationQuery = {}, options = {}) => {
@@ -106,7 +106,7 @@ const getFriends = (userId, paginationQuery = {}, options = {}) => {
 
     let mongoQuery = Friend.find(query)
         .populate("fromUserId", "name")
-        .populate("toUserId", "name");
+        .populate("toUserId", "name").lean();
 
     if (options.sort) mongoQuery = mongoQuery.sort(options.sort);
     if (options.limit) mongoQuery = mongoQuery.limit(options.limit);
@@ -160,7 +160,7 @@ const getRequestsByUserIdStatusRole = async ({ userId, status, role }, paginatio
     const populate = buildFriendPopulate(role);
     //console.log("getRequestsByUserIdStatusRole2: " + JSON.stringify(populate));
 
-    let mongoQuery = Friend.find(query).populate(populate);
+    let mongoQuery = Friend.find(query).populate(populate).lean();
 
     if (options.sort) mongoQuery = mongoQuery.sort(options.sort);
     if (options.limit) mongoQuery = mongoQuery.limit(options.limit);

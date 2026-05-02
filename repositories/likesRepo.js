@@ -3,12 +3,12 @@ import mongoose from 'mongoose';
 
 // Get All
 const getAllLikes = (queries) => {
-    return Likes.find(queries);
+    return Likes.find(queries).lean();
 };
 
 // Get By ID
 const getLikeById = (id) => {
-    return Likes.findById(id);
+    return Likes.findById(id).lean();
 };
 
 // Create
@@ -18,7 +18,7 @@ const addLike = (obj) => {
 
 // Update
 const updateLike = (id, obj) => {
-    return Likes.findByIdAndUpdate(id, obj);
+    return Likes.findByIdAndUpdate(id, obj, { new: true });
 };
 
 // Delete
@@ -68,9 +68,10 @@ const getAllLikesGroupByType = async (queries) => {
 
 const addOrUpdateReaction = async (userId, targetId, targetType, type) => {
     userId = String(userId);
-    postId = String(postId);
+    targetId = String(targetId);
 
-    const existing = await Likes.findOne({ userId, targetId, targetType });
+
+    const existing = await Likes.findOne({ userId, targetId, targetType }).lean();
 
     //console.log("addOrUpdateReaction-existing:", existing + " userId: " + userId + " postId: " + postId + " type: " + type);
 
@@ -108,7 +109,7 @@ const getLikesByType = async (postId, reactionType, genQuery, options) => {
         .populate('userId', 'name')
         .sort(options.sort)
         .skip(options.skip || 0)
-        .limit(options.limit);
+        .limit(options.limit).lean();
 };
 
 const countLikesByType = async ({ targetId, type }) => {
@@ -118,7 +119,7 @@ const countLikesByType = async ({ targetId, type }) => {
 };
 
 const getLikeByUserIdAndTargetIdAndTargetType = async ({ userId, targetId, targetType }) => {
-    return await Likes.findOne({ userId, targetId, targetType });
+    return await Likes.findOne({ userId, targetId, targetType }).lean();
 };
 
 export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType, countLikesByType, getLikeByUserIdAndTargetIdAndTargetType };
