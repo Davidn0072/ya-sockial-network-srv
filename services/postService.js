@@ -1,6 +1,6 @@
 import * as postRepo from '../repositories/postRepo.js';
 import { deleteManyLikes, getAllLikesGroupByType } from '../services/likesService.js';
-import { deleteManyComments, getAllCommentsPaged } from '../services/commentsService.js';
+import { deleteManyComments, getAllCommentsPaged, countCommentsByPostId } from '../services/commentsService.js';
 import { deleteManyDBUploadFiles, getAllDBUploadFiles, getAllDBUploadFilesPaged } from '../services/dbUploadFilesService.js';
 import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
@@ -33,17 +33,25 @@ const getAllPosts = async (params) => {
         options
     });
 
-    const truncatedPosts = posts.map(post => {
+    const truncatedPosts = await Promise.all(posts.map(async (post) => {
         const postObj = post.toObject ? post.toObject() : post;
-        const isLonger = postObj.content.length > 120;
+        const content = postObj.content || '';
+        const isLonger = content.length > 120;
+
+        const commentsCount = await countCommentsByPostId(postObj._id, null);
+        const likesStats = await getAllLikesGroupByType({ targetId: postObj._id, targetType: 'post' });
+
         return {
             ...postObj,
-            preview: postObj.content.slice(0, 120),
-            hasMore: isLonger
+            preview: content.slice(0, 120),
+            hasMore: isLonger,
+            commentsCount,
+            likesStats
         };
-    });
+    }));
 
     const response = buildCursorResponse({ posts: truncatedPosts });
+    //console.log("response:", JSON.stringify(response, null, 2));
     return response;
 };
 
@@ -166,24 +174,27 @@ const getRecommendedPosts = async (userId) => {
             limit: 50
         }
     });
-
+    //console.log("getRecommendedPosts:", JSON.stringify(posts, null, 2));
     const interests = userDomainOfInterest?.domainofinterest;
     const ids = await getRecommendedPostIds({ interests: interests || [], posts });
+    //console.log("getRecommendedPosts-ids:", JSON.stringify(ids, null, 2));
     const recommendedPosts = await postRepo.getByIds(ids);
+    //console.log("getRecommendedPosts-recommendedPosts:", JSON.stringify(recommendedPosts, null, 2));
     if (!recommendedPosts) {
         throw new AppError("Recommended posts not found", 404);
     }
 
     const truncatedPosts = recommendedPosts.map(post => {
         const postObj = post.toObject ? post.toObject() : post;
-        const isLonger = postObj.content.length > 120;
+        const content = postObj.content || '';
+        const isLonger = content.length > 120;
         return {
             ...postObj,
-            preview: postObj.content.slice(0, 120),
+            preview: content.slice(0, 120),
             hasMore: isLonger
         };
     });
-
+    //console.log("getRecommendedPosts-truncatedPosts:", JSON.stringify(truncatedPosts, null, 2));
     return truncatedPosts;
 };
 

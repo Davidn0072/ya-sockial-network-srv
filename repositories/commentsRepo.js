@@ -61,4 +61,9 @@ const deleteManyComments = (query) => {
     return Comments.deleteMany(query);
 };
 
-export { getAllComments, getCommentsPage, getCommentById, addComment, updateComment, deleteComment, deleteManyComments };
+// Count comments for a post
+const countCommentsByPostId = (postId, parentCommentId = null) => {
+    return Comments.countDocuments({ postId, parentCommentId });
+};
+
+export { getAllComments, getCommentsPage, getCommentById, addComment, updateComment, deleteComment, deleteManyComments, countCommentsByPostId };
