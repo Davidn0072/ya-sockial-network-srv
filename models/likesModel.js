@@ -22,6 +22,9 @@ const likesSchema = mongoose.Schema({
 }, { timestamps: true, versionKey: false });
 
 likesSchema.index({ userId: 1, targetType: 1, targetId: 1 }, { unique: true });
+likesSchema.index({ targetType: 1, targetId: 1 });
+likesSchema.index({ userId: 1 });
+likesSchema.index({ targetType: 1, targetId: 1, type: 1 });
 
 const Likes = mongoose.model('Likes', likesSchema, 'likes');
 
