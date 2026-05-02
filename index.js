@@ -15,7 +15,7 @@ import jwt from 'jsonwebtoken';
 import storageUploadFileRouter from './routers/storageUploadFileRouter.js';
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
@@ -71,14 +71,7 @@ chat.on('connection', (socket) => {
     });
 
     socket.on('private message', ({ msg, targetUserId }) => {
-
         const room = createRoom(socket.userId, targetUserId);
-        console.log('emit-room:', room);
-        console.log('emit-msg:', msg);
-        console.log('emit-msg:' + typeof msg);
-        console.log('emit-targetUserId:', targetUserId);
-        console.log('emit-socket.userId:', socket.userId);
-        console.log('socket.userId:', socket.userId);
         chat.to(room).emit('private message', {
             from: socket.userId,
             msg
