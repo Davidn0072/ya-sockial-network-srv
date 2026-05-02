@@ -3,7 +3,6 @@ import cors from 'cors';
 import connectDB from './Config/database.js';
 import userRouter from './routers/userRouter.js';
 import postRouter from './routers/postRouter.js';
-import loginHistoryRouter from './routers/loginHistoryRouter.js';
 import likesRouter from './routers/likesRouter.js';
 import friendRouter from './routers/friendRouter.js';
 import commentsRouter from './routers/commentsRouter.js';
@@ -28,7 +27,6 @@ app.use('/auth', authRouter);
 
 app.use('/users', verifyTokenMiddleware, userRouter);
 app.use('/posts', verifyTokenMiddleware, postRouter);
-app.use('/login-history', verifyTokenMiddleware, loginHistoryRouter);
 app.use('/likes', verifyTokenMiddleware, likesRouter);
 app.use('/friends', verifyTokenMiddleware, friendRouter);
 app.use('/comments', verifyTokenMiddleware, commentsRouter);

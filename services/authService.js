@@ -1,6 +1,5 @@
 import * as userService from '../services/userService.js';
 import jwt from 'jsonwebtoken';
-import * as loginHistoryService from '../services/loginHistoryService.js';
 import bcrypt from 'bcrypt';
 import { AppError } from '../errors/AppError.js';
 
@@ -25,8 +24,6 @@ async function login(email, password, ip) {
         process.env.SECRET_KEY,
         { expiresIn: '1h' }
     );
-
-    await loginHistoryService.addLoginHistory({ userId: user._id, ipAddress: ip });
 
     return { token, userId: user._id, userName: user.name };
 }

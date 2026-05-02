@@ -1,7 +1,6 @@
 import * as userRepo from '../repositories/userRepo.js';
 import { getPostByFieldId, deletePost } from '../services/postService.js';
 import { deleteManyFriends } from '../services/friendService.js';
-import { deleteManyLoginHistory } from './loginHistoryService.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import bcrypt from 'bcrypt';
 import { AppError } from '../errors/AppError.js';
@@ -98,7 +97,6 @@ const deleteUser = async (id) => {
 
     await Promise.all([
         deleteManyFriends({ userId: id }),
-        deleteManyLoginHistory({ userId: id })
     ]);
 
     return await userRepo.deleteUser(id);
