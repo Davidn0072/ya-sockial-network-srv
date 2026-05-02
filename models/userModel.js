@@ -3,10 +3,10 @@ import bcrypt from 'bcrypt';
 
 const userSchema = mongoose.Schema(
     {
-        name: { type: String, required: true, minlength: 3, maxlength: 100 },
-        email: { type: String, required: true, unique: true },
+        name: { type: String, required: true, minlength: 3, maxlength: 100, trim: true },
+        email: { type: String, required: true, unique: true, trim: true },
         password: { type: String, required: true, minlength: 8, maxlength: 100, select: false },
-        domainofinterest: [String],
+        domainofinterest: { type: [String], default: [] },
     },
     { versionKey: false, timestamps: true }
 );
@@ -17,7 +17,7 @@ userSchema.pre('save', async function () {
     this.password = await bcrypt.hash(this.password, 10);
 });
 
-userSchema.index({ username: 1 });
+userSchema.index({ name: 1 });
 
 // Remove password from the response
 userSchema.methods.toJSON = function () {
