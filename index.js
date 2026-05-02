@@ -58,15 +58,21 @@ chat.use((socket, next) => {
 
 chat.on('connection', async (socket) => {
     //console.log('User connected:', socket.userId);
+    try {
+        const user = await getUserById(socket.userId);
+        socket.userName = user.name;
+    } catch (error) {
+        socket.emit('error', { message: 'User not found' });
+        return;
+    }
 
     socket.on('chat message', async (msg) => {
         if (!msg || msg.trim() === '') {
             return;
         }
         try {
-            const user = await getUserById(socket.userId);
             chat.emit('chat message', {
-                from: user.name,
+                from: socket.userName,
                 msg: msg,
                 timestamp: new Date()
             });
@@ -75,39 +81,24 @@ chat.on('connection', async (socket) => {
         }
     });
 
-    socket.on('join private', async ({ targetUserId }) => {
-        // Validate targetUserId exists and is not same as current user
+    socket.on('join private', ({ targetUserId, targetUserName }) => {
         if (!targetUserId || targetUserId === socket.userId) {
             return socket.emit('error', { message: 'Invalid target user' });
         }
 
-        // Check if user exists in database
-        const userExists = await getUserById(targetUserId);
-        if (!userExists) {
-            return socket.emit('error', { message: 'User not found' });
-        }
-
         const room = createRoom(socket.userId, targetUserId);
-
         socket.join(room);
-
-        //console.log(`User ${socket.userId} joined ${room}`);
     });
 
-    socket.on('private message', async ({ msg, targetUserId }) => {
+    socket.on('private message', ({ msg, targetUserId, targetUserName }) => {
         if (!msg || msg.trim() === '') {
             return;
         }
-        try {
-            const user = await getUserById(socket.userId);
-            const room = createRoom(socket.userId, targetUserId);
-            chat.to(room).emit('private message', {
-                from: user.name,
-                msg
-            });
-        } catch (error) {
-            socket.emit('error', { message: 'Failed to send message' });
-        }
+        const room = createRoom(socket.userId, targetUserId);
+        chat.to(room).emit('private message', {
+            from: socket.userName,
+            msg
+        });
     });
 
     socket.on('disconnect', () => {
