@@ -6,11 +6,13 @@ const dbUploadFilesSchema = mongoose.Schema(
         postId: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', required: true },
         originalFileName: { type: String, required: true },
         storageFileName: { type: String, required: true },
-        createdAt: { type: Date, default: Date.now },
-        updatedAt: { type: Date, default: Date.now },
     },
     { versionKey: false, timestamps: true }
 );
+
+dbUploadFilesSchema.index({ postId: 1 });
+dbUploadFilesSchema.index({ userId: 1 });
+dbUploadFilesSchema.index({ postId: 1, userId: 1 });
 
 const dbUploadFilesModel = mongoose.model('UploadFiles', dbUploadFilesSchema, 'UploadFiles');
 
