@@ -33,7 +33,17 @@ const getAllPosts = async (params) => {
         options
     });
 
-    const response = buildCursorResponse({ posts });
+    const truncatedPosts = posts.map(post => {
+        const postObj = post.toObject ? post.toObject() : post;
+        const isLonger = postObj.content.length > 120;
+        return {
+            ...postObj,
+            preview: postObj.content.slice(0, 120),
+            hasMore: isLonger
+        };
+    });
+
+    const response = buildCursorResponse({ posts: truncatedPosts });
     return response;
 };
 
@@ -115,7 +125,8 @@ const getPostWithDetails = async (postId, query) => {
     const commentsWithLikes = await Promise.all(
         commentsResult.comments.map(async (comment) => {
             const likesStats = await getAllLikesGroupByType({ targetId: comment._id });
-            return { ...comment.toObject(), likesStats };
+            const commentObj = comment.toObject ? comment.toObject() : comment;
+            return { ...commentObj, likesStats };
         })
     );
 
@@ -162,7 +173,18 @@ const getRecommendedPosts = async (userId) => {
     if (!recommendedPosts) {
         throw new AppError("Recommended posts not found", 404);
     }
-    return recommendedPosts;
+
+    const truncatedPosts = recommendedPosts.map(post => {
+        const postObj = post.toObject ? post.toObject() : post;
+        const isLonger = postObj.content.length > 120;
+        return {
+            ...postObj,
+            preview: postObj.content.slice(0, 120),
+            hasMore: isLonger
+        };
+    });
+
+    return truncatedPosts;
 };
 
 export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails, getRecommendedPosts };
