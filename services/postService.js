@@ -1,7 +1,7 @@
 import * as postRepo from '../repositories/postRepo.js';
 import { deleteManyLikes, getAllLikesGroupByType } from '../services/likesService.js';
 import { deleteManyComments, getAllCommentsPaged, countCommentsByPostId } from '../services/commentsService.js';
-import { deleteManyDBUploadFiles, getAllDBUploadFiles, getAllDBUploadFilesPaged } from '../services/dbUploadFilesService.js';
+import { deleteManyDBUploadFiles, getAllDBUploadFiles, getAllDBUploadFilesPaged, countDBUploadFilesByPostId } from '../services/dbUploadFilesService.js';
 import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { getRecommendedPostIds } from '../services/postRecommendation.service.js';
@@ -40,13 +40,15 @@ const getAllPosts = async (params) => {
 
         const commentsCount = await countCommentsByPostId(postObj._id, null);
         const likesStats = await getAllLikesGroupByType({ targetId: postObj._id, targetType: 'post' });
+        const filesCount = await countDBUploadFilesByPostId(postObj._id);
 
         return {
             ...postObj,
             preview: content.slice(0, 120),
             hasMore: isLonger,
             commentsCount,
-            likesStats
+            likesStats,
+            filesCount
         };
     }));
 

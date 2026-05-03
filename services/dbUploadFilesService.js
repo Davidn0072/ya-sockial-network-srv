@@ -68,4 +68,9 @@ const deleteManyDBUploadFiles = (query) => {
     return dbUploadFilesRepo.deleteManyDBUploadFiles(query);
 };
 
-export { getAllDBUploadFiles, getAllDBUploadFilesPaged, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles };
+// Count DB Upload Files by Post ID
+const countDBUploadFilesByPostId = (postId) => {
+    return dbUploadFilesRepo.countDBUploadFilesByPostId(postId);
+};
+
+export { getAllDBUploadFiles, getAllDBUploadFilesPaged, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles, countDBUploadFilesByPostId };

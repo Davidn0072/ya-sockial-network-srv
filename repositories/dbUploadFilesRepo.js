@@ -37,4 +37,10 @@ const deleteManyDBUploadFiles = (query) => {
     return dbUploadFilesModel.deleteMany(query);
 };
 
-export { getAllDBUploadFiles, getDBUploadFilesPage, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles };
+// Count comments for a post
+const countDBUploadFilesByPostId = (postId) => {
+    return dbUploadFilesModel.countDocuments({ postId });
+};
+
+
+export { getAllDBUploadFiles, getDBUploadFilesPage, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles, countDBUploadFilesByPostId };
