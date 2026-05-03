@@ -94,7 +94,7 @@ const getRequestsByUserIdStatusRole_OLD = async ({ userId, status, role }) => {
 };
 
 const updateFriendRequestStatus = (requestId, status) => {
-    return Friend.findByIdAndUpdate(requestId, { status }, { new: true });
+    return Friend.findByIdAndUpdate(requestId, { status }, { returnDocument: 'after' });
 };
 
 const getFriends = (userId, paginationQuery = {}, options = {}) => {

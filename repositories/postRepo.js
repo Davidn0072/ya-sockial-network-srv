@@ -20,7 +20,7 @@ const addPost = (obj) => {
 
 // Update
 const updatePost = (id, obj) => {
-    return Post.findByIdAndUpdate(id, obj, { new: true });
+    return Post.findByIdAndUpdate(id, obj, { returnDocument: 'after' });
 };
 
 // Delete

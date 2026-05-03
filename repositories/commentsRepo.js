@@ -48,7 +48,7 @@ const addComment = (obj) => {
 
 // Update
 const updateComment = (id, obj) => {
-    return Comments.findByIdAndUpdate(id, obj, { new: true });
+    return Comments.findByIdAndUpdate(id, obj, { returnDocument: 'after' });
 };
 
 // Delete

@@ -24,7 +24,7 @@ const addDBUploadFile = (obj) => {
 
 // Update
 const updateDBUploadFile = (id, obj) => {
-    return dbUploadFilesModel.findByIdAndUpdate(id, obj, { new: true });
+    return dbUploadFilesModel.findByIdAndUpdate(id, obj, { returnDocument: 'after' });
 };
 
 // Delete

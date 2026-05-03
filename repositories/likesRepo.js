@@ -18,7 +18,7 @@ const addLike = (obj) => {
 
 // Update
 const updateLike = (id, obj) => {
-    return Likes.findByIdAndUpdate(id, obj, { new: true });
+    return Likes.findByIdAndUpdate(id, obj, { returnDocument: 'after' });
 };
 
 // Delete
