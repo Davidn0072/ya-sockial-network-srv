@@ -7,7 +7,7 @@ const getAllLikes = (queries) => {
 };
 
 // Get By ID
-const getLikeById = (id) => {
+const getLikeById = async (id) => {
     const like = likesRepo.getLikeById(id);
     if (!like) {
         throw new AppError("Like not found", 404);
@@ -16,7 +16,7 @@ const getLikeById = (id) => {
 };
 
 // Create
-const addLike = (obj) => {
+const addLike = async (obj) => {
     const newLike = likesRepo.addLike(obj);
     if (!newLike) {
         throw new AppError("Failed to create like", 400);
@@ -25,7 +25,7 @@ const addLike = (obj) => {
 };
 
 // Update
-const updateLike = (id, obj) => {
+const updateLike = async (id, obj) => {
     const updatedLike = likesRepo.updateLike(id, obj);
     if (!updatedLike) {
         throw new AppError("Failed to update like", 400);
@@ -34,7 +34,7 @@ const updateLike = (id, obj) => {
 };
 
 // Delete
-const deleteLike = (id) => {
+const deleteLike = async (id) => {
     const deletedLike = likesRepo.deleteLike(id);
     if (!deletedLike) {
         throw new AppError("Failed to delete like", 400);
