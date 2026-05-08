@@ -8,6 +8,20 @@ import { getRecommendedPostIds } from '../services/postRecommendation.service.js
 import { getUserDomainOfInterest } from '../services/userService.js';
 import { AppError } from '../errors/AppError.js';
 
+const validatePostContent = (content) => {
+    if (!content || typeof content !== 'string') {
+        throw new AppError("Content is required and must be a string", 400);
+    }
+    const trimmed = content.trim();
+    if (trimmed.length < 3) {
+        throw new AppError("Content must be at least 3 characters", 400);
+    }
+    if (trimmed.length > 1000) {
+        throw new AppError("Content cannot exceed 1000 characters", 400);
+    }
+    return trimmed;
+};
+
 // Get All
 const buildFilter = ({ userId, category }) => {
     const filter = {};
@@ -76,7 +90,13 @@ const getPostById = async (id) => {
 
 // Create
 const addPost = async (obj) => {
-    const newPost = await postRepo.addPost(obj);
+    const content = validatePostContent(obj.content);
+
+    if (!obj.userId) {
+        throw new AppError("UserId is required", 400);
+    }
+
+    const newPost = await postRepo.addPost({ ...obj, content });
     if (!newPost) {
         throw new AppError("Failed to create post", 400);
     }
@@ -85,6 +105,10 @@ const addPost = async (obj) => {
 
 // Update
 const updatePost = async (id, obj) => {
+    if (obj.content !== undefined) {
+        obj.content = validatePostContent(obj.content);
+    }
+
     const updatedPost = await postRepo.updatePost(id, obj);
     if (!updatedPost) {
         throw new AppError("Failed to update post", 400);
