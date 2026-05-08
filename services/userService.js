@@ -113,19 +113,46 @@ const isEmailExists = (email) => {
 };
 
 function validatePasswordMatch(password, confirmPassword) {
+    if (!password || !confirmPassword) {
+        throw new AppError('Password and confirm password are required', 400);
+    }
     if (password !== confirmPassword) {
         throw new AppError('Password and confirm password do not match', 400);
+    }
+}
+
+function validatePassword(password) {
+    if (!password || typeof password !== 'string') {
+        throw new AppError('Password is required and must be a string', 400);
+    }
+    if (password.length < 8) {
+        throw new AppError('Password must be at least 8 characters', 400);
+    }
+}
+
+function validateName(name) {
+    if (!name || typeof name !== 'string') {
+        throw new AppError('Name is required and must be a string', 400);
+    }
+    const trimmed = name.trim();
+    if (trimmed.length < 3) {
+        throw new AppError('Name must be at least 3 characters', 400);
+    }
+    if (trimmed.length > 100) {
+        throw new AppError('Name cannot exceed 100 characters', 400);
     }
 }
 
 async function register(data) {
     const { name, email, password, confirmPassword } = data;
 
-    await checkNameUnique(name);
+    validateName(name);
     validateEmail(email);
-    await checkEmailUnique(email);
-
+    validatePassword(password);
     validatePasswordMatch(password, confirmPassword);
+
+    await checkNameUnique(name);
+    await checkEmailUnique(email);
 
     return await addUser({ name, email, password });
 }
@@ -180,5 +207,5 @@ function validateEmail(email) {
         throw new AppError('Invalid email address', 400);
     }
 }
-export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName, getUserDomainOfInterest };
+export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName, getUserDomainOfInterest, validateEmail, validatePassword, validateName };
 
