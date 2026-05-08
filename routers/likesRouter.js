@@ -19,25 +19,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get likes by type
-router.get('/by-type/:targetId', async (req, res) => {
-    try {
-        const { targetId } = req.params;
-        const params = {
-            ...req.query,
-            postId: targetId
-        };
-        //console.log("LikesRouter-GET-by-type-0-targetId:", targetId);
-        //console.log("LikesRouter-GET-by-type-0-req.query:", JSON.stringify(req.query, null, 2));
-        //console.log("LikesRouter-GET-by-type-0-req.params:", JSON.stringify(req.params, null, 2));
-        const likes = await likesService.getLikesByType(params);
-        res.status(200).json(likes);
-    } catch (error) {
-        const { status, message } = parseError(error);
-        res.status(status).json({ message });
-    }
-});
-
+// Get likes by type with reaction type (more specific - must be before /by-type/:targetId)
 router.get('/by-type/:targetId/:type', async (req, res) => {
     try {
         const { targetId, type } = req.params;
@@ -50,6 +32,25 @@ router.get('/by-type/:targetId/:type', async (req, res) => {
         //console.log("LikesRouter-GET-by-type-1-type:", type);
         //console.log("LikesRouter-GET-by-type-1-req.query:", JSON.stringify(req.query, null, 2));
         //console.log("LikesRouter-GET-by-type-1-req.params:", JSON.stringify(req.params, null, 2));
+        const likes = await likesService.getLikesByType(params);
+        res.status(200).json(likes);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
+    }
+});
+
+// Get likes by type
+router.get('/by-type/:targetId', async (req, res) => {
+    try {
+        const { targetId } = req.params;
+        const params = {
+            ...req.query,
+            postId: targetId
+        };
+        //console.log("LikesRouter-GET-by-type-0-targetId:", targetId);
+        //console.log("LikesRouter-GET-by-type-0-req.query:", JSON.stringify(req.query, null, 2));
+        //console.log("LikesRouter-GET-by-type-0-req.params:", JSON.stringify(req.params, null, 2));
         const likes = await likesService.getLikesByType(params);
         res.status(200).json(likes);
     } catch (error) {
