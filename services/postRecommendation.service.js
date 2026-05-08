@@ -42,8 +42,6 @@ No explanations. No markdown. Only JSON.
             .slice(0, maxResults);
 
     } catch (err) {
-        console.warn('AI recommendation failed:', err.message);
-        console.log('AI recommendation text:', JSON.stringify(text));
         return [];
     }
 };
