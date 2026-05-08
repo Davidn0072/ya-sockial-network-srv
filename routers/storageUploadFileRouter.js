@@ -12,9 +12,12 @@ router.post(
     '/:postId',
     storageUploadFileMiddleware.single('file'),
     async (req, res) => {
-        //console.log("postId11:", req.params.postId); //
         try {
-            const result = await storageUploadFileService.storageUploadFile(req, res);
+            if (!req.file) {
+                return res.status(400).json({ message: 'No file uploaded' });
+            }
+
+            const result = await storageUploadFileService.storageUploadFile(req);
             return res.status(200).json({ message: 'File uploaded successfully', result });
         } catch (error) {
             const { status, message } = parseError(error);
