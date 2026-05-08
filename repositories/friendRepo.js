@@ -45,7 +45,7 @@ const findFriendRequestByFromAndToUserId = (fromUserId, toUserId) => {
 };
 
 const createFriendRequest = (fromUserId, toUserId) => {
-    return Friend.insertOne({ fromUserId, toUserId, status: "pending" });
+    return Friend.create({ fromUserId, toUserId, status: "pending" });
 };
 /*
 const getRequestsByUserIdStatusRole = (userId, status) => {
