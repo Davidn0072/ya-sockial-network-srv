@@ -1,5 +1,6 @@
 import * as commentsRepo from '../repositories/commentsRepo.js';
 import { buildPagination, buildCursorResponse } from '../utils/pagination.js';
+import { validateContent } from '../utils/validators.js';
 import { AppError } from '../errors/AppError.js';
 
 // Get All
@@ -33,7 +34,8 @@ const getCommentById = (id) => {
 
 // Create
 const addComment = (obj) => {
-    const newComment = commentsRepo.addComment(obj);
+    const content = validateContent(obj.content);
+    const newComment = commentsRepo.addComment({ ...obj, content });
     if (!newComment) {
         throw new AppError('Failed to create comment', 400);
     }
@@ -42,6 +44,9 @@ const addComment = (obj) => {
 
 // Update
 const updateComment = (id, obj) => {
+    if (obj.content !== undefined) {
+        obj.content = validateContent(obj.content);
+    }
     const updatedComment = commentsRepo.updateComment(id, obj);
     if (!updatedComment) {
         throw new AppError('Failed to update comment', 400);
