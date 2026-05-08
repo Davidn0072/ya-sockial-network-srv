@@ -43,7 +43,16 @@ const addComment = (obj) => {
 };
 
 // Update
-const updateComment = (id, obj) => {
+const updateComment = async (id, obj, userId) => {
+    const comment = await commentsRepo.getCommentById(id);
+    if (!comment) {
+        throw new AppError('Comment not found', 404);
+    }
+
+    if (comment.userId.toString() !== userId) {
+        throw new AppError('Not authorized', 401);
+    }
+
     if (obj.content !== undefined) {
         obj.content = validateContent(obj.content);
     }
@@ -55,7 +64,16 @@ const updateComment = (id, obj) => {
 };
 
 // Delete
-const deleteComment = (id) => {
+const deleteComment = async (id, userId) => {
+    const comment = await commentsRepo.getCommentById(id);
+    if (!comment) {
+        throw new AppError('Comment not found', 404);
+    }
+
+    if (comment.userId.toString() !== userId) {
+        throw new AppError('Not authorized', 401);
+    }
+
     const deletedComment = commentsRepo.deleteComment(id);
     if (!deletedComment) {
         throw new AppError('Failed to delete comment', 400);

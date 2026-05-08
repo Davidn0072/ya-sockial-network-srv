@@ -60,7 +60,7 @@ router.patch('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.body;
-        const result = await commentsService.updateComment(id, data);
+        const result = await commentsService.updateComment(id, data, req.user.id);
         res.status(200).json(result);
     } catch (error) {
         const { status, message } = parseError(error);
@@ -72,7 +72,7 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await commentsService.deleteComment(id);
+        const result = await commentsService.deleteComment(id, req.user.id);
         res.status(200).json(result);
     } catch (error) {
         const { status, message } = parseError(error);
