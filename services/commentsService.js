@@ -33,9 +33,9 @@ const getCommentById = (id) => {
 };
 
 // Create
-const addComment = (obj) => {
+const addComment = async (obj) => {
     const content = validateContent(obj.content);
-    const newComment = commentsRepo.addComment({ ...obj, content });
+    const newComment = await commentsRepo.addComment({ ...obj, content });
     if (!newComment) {
         throw new AppError('Failed to create comment', 400);
     }
@@ -56,7 +56,7 @@ const updateComment = async (id, obj, userId) => {
     if (obj.content !== undefined) {
         obj.content = validateContent(obj.content);
     }
-    const updatedComment = commentsRepo.updateComment(id, obj);
+    const updatedComment = await commentsRepo.updateComment(id, obj);
     if (!updatedComment) {
         throw new AppError('Failed to update comment', 400);
     }
@@ -74,7 +74,7 @@ const deleteComment = async (id, userId) => {
         throw new AppError('Not authorized', 401);
     }
 
-    const deletedComment = commentsRepo.deleteComment(id);
+    const deletedComment = await commentsRepo.deleteComment(id);
     if (!deletedComment) {
         throw new AppError('Failed to delete comment', 400);
     }
