@@ -42,6 +42,7 @@ No explanations. No markdown. Only JSON.
             .slice(0, maxResults);
 
     } catch (err) {
+        console.error('AI Recommendation Error:', err.message);
         return [];
     }
 };
