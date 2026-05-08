@@ -8,7 +8,16 @@ const deleteManyFriends = (query) => {
 };
 
 // Delete a friend request
-const deleteFriendRequest = (id) => {
+const deleteFriendRequest = async (id, userId) => {
+    const request = await friendRepo.getFriendRequestById(id);
+
+    if (!request) throw new AppError("Request not found", 404);
+
+    const isInvolved = request.fromUserId.toString() === userId || request.toUserId.toString() === userId;
+    if (!isInvolved) {
+        throw new AppError("Not authorized", 401);
+    }
+
     return friendRepo.deleteFriendRequest(id);
 };
 

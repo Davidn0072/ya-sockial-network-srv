@@ -91,7 +91,8 @@ router.post("/reject", async (req, res) => {
 router.delete("/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        await friendService.deleteFriendRequest(id);
+        const userId = req.user.id;
+        await friendService.deleteFriendRequest(id, userId);
 
         res.status(200).json({ message: "Unfriended" });
     } catch (error) {
