@@ -53,12 +53,24 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get Post With Details (must be before /:id)
+router.get('/postWithDetails/:postId', async (req, res) => {
+    try {
+        const result = await postsService.getPostWithDetails(
+            req.params.postId,
+            req.query
+        );
+
+        res.status(200).json(result);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
+    }
+});
+
 // Get By Id
 router.get('/:id', async (req, res) => {
     try {
-        //console.log('getPostById-Router: queries:', JSON.stringify(req.query, null, 2));
-        //console.log('getPostById-Router: params:', JSON.stringify(req.params, null, 2));
-
         const { id } = req.params;
         const post = await postsService.getPostById(id);
         res.status(200).json(post);
@@ -71,7 +83,10 @@ router.get('/:id', async (req, res) => {
 // Add a new post
 router.post('/', async (req, res) => {
     try {
-        const postObj = req.body;
+        const postObj = {
+            ...req.body,
+            userId: req.user.id
+        };
         const newPost = await postsService.addPost(postObj);
         res.status(201).json({ message: `The new ID: ${newPost._id}` });
     } catch (error) {
@@ -84,8 +99,9 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.user.id;
         const data = req.body;
-        const result = await postsService.updatePost(id, data);
+        const result = await postsService.updatePost(id, userId, data);
         res.status(200).json(result);
     } catch (error) {
         const { status, message } = parseError(error);
@@ -97,21 +113,8 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await postsService.deletePost(id);
-        res.status(200).json(result);
-    } catch (error) {
-        const { status, message } = parseError(error);
-        res.status(status).json({ message });
-    }
-});
-
-router.get('/postWithDetails/:postId', async (req, res) => {
-    try {
-        const result = await postsService.getPostWithDetails(
-            req.params.postId,
-            req.query
-        );
-
+        const userId = req.user.id;
+        const result = await postsService.deletePost(id, userId);
         res.status(200).json(result);
     } catch (error) {
         const { status, message } = parseError(error);

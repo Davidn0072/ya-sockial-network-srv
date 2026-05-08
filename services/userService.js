@@ -56,7 +56,11 @@ const addUser = async (obj) => {
 };
 
 // Update
-async function updateUser(userId, data) {
+async function updateUser(userId, data, authenticatedUserId) {
+    if (userId !== authenticatedUserId) {
+        throw new AppError('You can only update your own profile', 403);
+    }
+
     const { name, email } = data;
 
     if (name) await checkNameUnique(name, userId);
@@ -83,7 +87,11 @@ async function updateUser(userId, data) {
 
 
 // Delete
-const deleteUser = async (id) => {
+const deleteUser = async (id, authenticatedUserId) => {
+    if (id !== authenticatedUserId) {
+        throw new AppError('You can only delete your own profile', 403);
+    }
+
     const user = await getUserById(id);
 
     if (!user) {

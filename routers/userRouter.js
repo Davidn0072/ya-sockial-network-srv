@@ -65,8 +65,9 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const authenticatedUserId = req.user.id;
         const data = req.body;
-        const result = await usersService.updateUser(id, data);
+        const result = await usersService.updateUser(id, data, authenticatedUserId);
         res.status(200).send(result);
     } catch (error) {
         const { status, message } = parseError(error);
@@ -78,7 +79,8 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await usersService.deleteUser(id);
+        const authenticatedUserId = req.user.id;
+        const result = await usersService.deleteUser(id, authenticatedUserId);
         res.send(result);
     } catch (error) {
         const { status, message } = parseError(error);
