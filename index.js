@@ -72,13 +72,19 @@ chat.on('connection', async (socket) => {
     //console.log('User connected:', socket.userId);
     try {
         const user = await getUserById(socket.userId);
+        if (!user) {
+            socket.emit('error', { message: 'User not found' });
+            socket.disconnect();
+            return;
+        }
         socket.userName = user.name;
     } catch (error) {
         socket.emit('error', { message: 'User not found' });
+        socket.disconnect();
         return;
     }
 
-    socket.on('chat message', async (msg) => {
+    socket.on('chat message', (msg) => {
         if (!msg || msg.trim() === '') {
             return;
         }
@@ -89,6 +95,7 @@ chat.on('connection', async (socket) => {
                 timestamp: new Date()
             });
         } catch (error) {
+            console.error('Chat message error:', error.message);
             socket.emit('error', { message: 'Failed to send message' });
         }
     });
@@ -106,11 +113,16 @@ chat.on('connection', async (socket) => {
         if (!msg || msg.trim() === '') {
             return;
         }
-        const room = createRoom(socket.userId, targetUserId);
-        chat.to(room).emit('private message', {
-            from: socket.userName,
-            msg
-        });
+        try {
+            const room = createRoom(socket.userId, targetUserId);
+            chat.to(room).emit('private message', {
+                from: socket.userName,
+                msg
+            });
+        } catch (error) {
+            console.error('Private message error:', error.message);
+            socket.emit('error', { message: 'Failed to send private message' });
+        }
     });
 
     socket.on('disconnect', () => {
