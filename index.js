@@ -1,6 +1,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Validate required environment variables
+const requiredEnvVars = ['SECRET_KEY', 'DB_URL'];
+for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+        console.error(`Error: ${envVar} is not set in .env file`);
+        process.exit(1);
+    }
+}
+
 import express from 'express';
 import cors from 'cors';
 import connectDB from './Config/database.js';
