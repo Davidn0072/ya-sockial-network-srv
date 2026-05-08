@@ -91,7 +91,13 @@ const addPost = async (obj) => {
 };
 
 // Update
-const updatePost = async (id, obj) => {
+const updatePost = async (id, userId, obj) => {
+    const post = await getPostById(id);
+
+    if (post.userId.toString() !== userId) {
+        throw new AppError("You can only update your own posts", 403);
+    }
+
     if (obj.content !== undefined) {
         obj.content = validateContent(obj.content);
     }
@@ -104,11 +110,15 @@ const updatePost = async (id, obj) => {
 };
 
 // Delete
-const deletePost = async (id) => {
+const deletePost = async (id, userId) => {
     const post = await getPostById(id);
 
     if (!post) {
         throw new AppError("Post not found", 404);
+    }
+
+    if (post.userId.toString() !== userId) {
+        throw new AppError("You can only delete your own posts", 403);
     }
 
     await deletePostFolder(id);

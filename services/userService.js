@@ -101,7 +101,7 @@ const deleteUser = async (id, authenticatedUserId) => {
     const userPosts = await getPostByFieldId({ userId: id });
     const postIds = userPosts.map(p => p._id);
 
-    await Promise.all(postIds.map(id => deletePost(id)));
+    await Promise.all(postIds.map(postId => deletePost(postId, id)));
 
     await Promise.all([
         deleteManyFriends({ userId: id }),
