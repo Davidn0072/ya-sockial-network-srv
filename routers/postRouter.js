@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Base URL: 'http://localhost:3000/posts'
 
-// Get Recommended Posts
+// Get Recommended Posts (specific routes first)
 router.get('/recommended', async (req, res) => {
     try {
         //console.log('getRecommendedPosts-Router: queries:', JSON.stringify(req.query, null, 2));
@@ -14,38 +14,6 @@ router.get('/recommended', async (req, res) => {
         //console.log('getRecommendedPosts-Router: user:', JSON.stringify(req.user, null, 2));
 
         const posts = await postsService.getRecommendedPosts(req.user.id);
-        res.status(200).json(posts);
-    } catch (error) {
-        const { status, message } = parseError(error);
-        res.status(status).json({ message });
-    }
-});
-
-// Get Posts By User Id
-router.get('/user/:userId', async (req, res) => {
-    try {
-        //console.log('getPostsByUserId-Router: queries:', JSON.stringify(req.query, null, 2));
-        //console.log('getPostsByUserId-Router: params:', JSON.stringify(req.params, null, 2));
-
-        const posts = await postsService.getAllPosts({
-            ...req.query,
-            userId: req.params.userId
-        });
-        res.status(200).json(posts);
-    } catch (error) {
-        const { status, message } = parseError(error);
-        res.status(status).json({ message });
-    }
-});
-// Get All Posts
-router.get('/', async (req, res) => {
-    try {
-        //console.log('getAllPosts-Router: queries:', JSON.stringify(req.query, null, 2));
-        //console.log('getAllPosts-Router: params:', JSON.stringify(req.params, null, 2));
-
-        const queries = req.query
-        //console.log('getAllPosts: queries:', queries);
-        const posts = await postsService.getAllPosts(queries);
         res.status(200).json(posts);
     } catch (error) {
         const { status, message } = parseError(error);
@@ -68,12 +36,45 @@ router.get('/postWithDetails/:postId', async (req, res) => {
     }
 });
 
+// Get Posts By User Id
+router.get('/user/:userId', async (req, res) => {
+    try {
+        //console.log('getPostsByUserId-Router: queries:', JSON.stringify(req.query, null, 2));
+        //console.log('getPostsByUserId-Router: params:', JSON.stringify(req.params, null, 2));
+
+        const posts = await postsService.getAllPosts({
+            ...req.query,
+            userId: req.params.userId
+        });
+        res.status(200).json(posts);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
+    }
+});
+
 // Get By Id
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const post = await postsService.getPostById(id);
         res.status(200).json(post);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
+    }
+});
+
+// Get All Posts (generic catch-all)
+router.get('/', async (req, res) => {
+    try {
+        //console.log('getAllPosts-Router: queries:', JSON.stringify(req.query, null, 2));
+        //console.log('getAllPosts-Router: params:', JSON.stringify(req.params, null, 2));
+
+        const queries = req.query
+        //console.log('getAllPosts: queries:', queries);
+        const posts = await postsService.getAllPosts(queries);
+        res.status(200).json(posts);
     } catch (error) {
         const { status, message } = parseError(error);
         res.status(status).json({ message });
