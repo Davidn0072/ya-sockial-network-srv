@@ -24,8 +24,8 @@ const getAllCommentsPaged = async (params) => {
 };
 
 // Get By ID
-const getCommentById = (id) => {
-    const comment = commentsRepo.getCommentById(id);
+const getCommentById = async (id) => {
+    const comment = await commentsRepo.getCommentById(id);
     if (!comment) {
         throw new AppError('Comment not found', 404);
     }
