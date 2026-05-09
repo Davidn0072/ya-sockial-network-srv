@@ -2,7 +2,7 @@ import * as userRepo from '../repositories/userRepo.js';
 import { getPostByFieldId, deletePost } from '../services/postService.js';
 import { deleteManyFriends } from '../services/friendService.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
-import { normalizeEmail } from '../utils/emailValidators.js';
+import { normalizeEmail, validateAndNormalizeEmail } from '../utils/emailValidators.js';
 import bcrypt from 'bcrypt';
 import { AppError } from '../errors/AppError.js';
 
@@ -70,10 +70,9 @@ async function updateUser(userId, data, authenticatedUserId) {
     }
 
     const { name } = data;
-    const email = data.email ? normalizeEmail(data.email) : null;
+    const email = data.email ? validateAndNormalizeEmail(data.email) : null;
 
     if (name) await checkNameUnique(name, userId);
-    if (email) validateEmail(email);
     if (email) await checkEmailUnique(email, userId);
 
     if (data.newPassword) {
@@ -167,10 +166,9 @@ function validateName(name) {
 
 async function register(data) {
     const { name, password, confirmPassword } = data;
-    const email = normalizeEmail(data.email);
+    const email = validateAndNormalizeEmail(data.email);
 
     validateName(name);
-    validateEmail(email);
     validatePassword(password);
     validatePasswordMatch(password, confirmPassword);
 
@@ -225,11 +223,5 @@ const findOneByField = (field) => {//case insensitive search
     return userRepo.findOneByField(field);
 };
 
-function validateEmail(email) {
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(email)) {
-        throw new AppError('Invalid email address', 400);
-    }
-}
-export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName, getUserDomainOfInterest, validateEmail, validatePassword, validateName };
+export { getAllUsers, getUserById, addUser, updateUser, deleteUser, getUserByEmailAndPassword, isNameExists, isEmailExists, findOneByField, register, searchUsersByName, getUserDomainOfInterest, validatePassword, validateName };
 
