@@ -1,6 +1,8 @@
 import * as likesRepo from '../repositories/likesRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { AppError } from '../errors/AppError.js';
+import { parseError } from '../utils/error.js';
+
 // Get All
 const getAllLikes = (queries) => {
     return likesRepo.getAllLikes(queries);
