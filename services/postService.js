@@ -121,7 +121,7 @@ const deletePost = async (id, userId) => {
         throw new AppError("Post not found", 404);
     }
 
-    if (post.userId.toString() !== userId) {
+    if (post.userId._id.toString() !== userId) {
         throw new AppError("You can only delete your own posts", 403);
     }
 
