@@ -6,12 +6,22 @@ const router = express.Router();
 
 // Base URL: 'http://localhost:3000/uploadfiles'
 
-// Get All Upload Files
+// Get All Upload Files (with cursor-based pagination for post)
 router.get('/', async (req, res) => {
+    console.log("getAllFilesForPost req.query:" + JSON.stringify(req.query));
     try {
-        const queries = req.query
-        const uploadfiles = await dbUploadFilesService.getAllDBUploadFiles(queries);
-        res.status(200).json(uploadfiles);
+        const { postId, cursor, limit } = req.query;
+
+        if (!postId) {
+            return res.status(400).json({ message: 'postId is required' });
+        }
+
+        const result = await dbUploadFilesService.getAllDBUploadFilesPaged({
+            postId,
+            cursor: cursor || null,
+            limit: limit ? Number(limit) : 10
+        });
+        res.json(result);
     } catch (error) {
         const { status, message } = parseError(error);
         res.status(status).json({ message });
@@ -20,6 +30,7 @@ router.get('/', async (req, res) => {
 
 // Get By Id
 router.get('/:id', async (req, res) => {
+    console.log("getUploadFileById req.params:" + JSON.stringify(req.params));
     try {
         const { id } = req.params;
         const uploadfile = await dbUploadFilesService.getDBUploadFileById(id);
