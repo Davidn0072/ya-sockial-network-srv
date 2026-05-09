@@ -1,4 +1,5 @@
 import { generateText } from 'ai';
+import { AppError } from '../errors/AppError.js';
 
 const getRecommendedPostIds = async ({
     interests = [],
@@ -6,6 +7,9 @@ const getRecommendedPostIds = async ({
     maxResults = 5,
 }) => {
     if (!posts.length || !interests.length) return [];
+
+    // SIMULATION: TEST EXCEPTION
+    //  throw new AppError('Simulated AI service failure - test exception', 500);
 
     const prompt = `
 You are a content recommendation engine.
@@ -43,7 +47,7 @@ No explanations. No markdown. Only JSON.
 
     } catch (err) {
         console.error('AI Recommendation Error:', err.message);
-        return [];
+        throw new AppError('Failed to fetch recommended posts', 500);
     }
 };
 
