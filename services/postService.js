@@ -98,7 +98,7 @@ const addPost = async (obj) => {
 const updatePost = async (id, userId, obj) => {
     const post = await getPostById(id);
 
-    if (post.userId.toString() !== userId) {
+    if (post.userId._id.toString() !== userId) {
         throw new AppError("You can only update your own posts", 403);
     }
 
