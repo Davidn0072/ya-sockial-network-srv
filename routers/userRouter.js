@@ -42,7 +42,7 @@ router.get('/:id', async (req, res) => {
         //console.log('getUserById: req.params:', req.params);
         const { id } = req.params;
         const user = await usersService.getUserById(id);
-        res.status(200).send(user);
+        res.status(200).json(user);
     } catch (error) {
         const { status, message } = parseError(error);
         res.status(status).json({ message });
