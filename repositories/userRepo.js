@@ -23,11 +23,8 @@ const addUser = (obj) => {
 };
 
 // Update
-const updateUser = async (id, obj) => {
-    const user = await User.findById(id);
-    if (!user) return null;
-    Object.assign(user, obj);
-    return user.save(); // pre-save hook will hash the password automatically
+const updateUser = (id, obj) => {
+    return User.findByIdAndUpdate(id, obj, { new: true });
 };
 
 // Delete

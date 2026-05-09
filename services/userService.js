@@ -5,6 +5,10 @@ import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import bcrypt from 'bcrypt';
 import { AppError } from '../errors/AppError.js';
 
+const hashPassword = async (password) => {
+    return bcrypt.hash(password, 10);
+};
+
 
 // Get All
 const getAllUsers = async (queries) => {
@@ -48,6 +52,9 @@ const getUserById = async (id) => {
 
 // Create
 const addUser = async (obj) => {
+    if (obj.password) {
+        obj.password = await hashPassword(obj.password);
+    }
     const newUser = await userRepo.addUser(obj);
     if (!newUser) {
         throw new AppError('Failed to create user', 400);
@@ -77,7 +84,7 @@ async function updateUser(userId, data, authenticatedUserId) {
             throw new AppError('Old password is not correct', 400);
         }
         validatePasswordMatch(data.newPassword, data.confirmPassword);
-        data.password = data.newPassword;
+        data.password = await hashPassword(data.newPassword);
         delete data.newPassword;
         delete data.oldPassword;
         delete data.confirmPassword;
@@ -162,7 +169,7 @@ async function register(data) {
     await checkNameUnique(name);
     await checkEmailUnique(email);
 
-    return await addUser({ name, email, password });
+    return addUser({ name, email, password });
 }
 
 const searchUsersByName = async (params) => {
