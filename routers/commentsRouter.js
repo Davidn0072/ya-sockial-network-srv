@@ -46,8 +46,7 @@ router.get('/:id', async (req, res) => {
 // Add a new comment
 router.post('/', async (req, res) => {
     try {
-        const commentObj = req.body;
-        const newComment = await commentsService.addComment(commentObj);
+        const newComment = await commentsService.addComment(req.body, req.user.id);
         res.status(201).json({ message: `The new ID: ${newComment._id}` });
     } catch (error) {
         const { status, message } = parseError(error);

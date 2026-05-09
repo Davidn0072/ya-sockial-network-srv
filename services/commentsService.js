@@ -33,9 +33,9 @@ const getCommentById = (id) => {
 };
 
 // Create
-const addComment = async (obj) => {
+const addComment = async (obj, userId) => {
     const content = validateContent(obj.content);
-    const newComment = await commentsRepo.addComment({ ...obj, content });
+    const newComment = await commentsRepo.addComment({ ...obj, content, userId });
     if (!newComment) {
         throw new AppError('Failed to create comment', 400);
     }
