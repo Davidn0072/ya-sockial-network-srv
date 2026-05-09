@@ -28,51 +28,6 @@ const findFriendRequestByFromAndToUserId = (fromUserId, toUserId) => {
 const createFriendRequest = (fromUserId, toUserId) => {
     return Friend.create({ fromUserId, toUserId, status: "pending" });
 };
-/*
-const getRequestsByUserIdStatusRole = (userId, status) => {
-    return Friend.find({ $or: [{ fromUserId: userId }, { toUserId: userId }], status: status });
-};*/
-
-const getRequestsByUserIdStatusRole_OLD = async ({ userId, status, role }) => {
-    const query = {};
-
-    if (status) {
-        query.status = status;
-    }
-
-    console.log("getRequestsByUserIdStatusRole1: " + userId + " " + status + " " + role);
-    const objectUserId = new mongoose.Types.ObjectId(userId);
-
-    if (role === "from") {
-        query.fromUserId = objectUserId;
-    } else if (role === "to") {
-        query.toUserId = objectUserId;
-    } else {
-        query.$or = [
-            { fromUserId: objectUserId },
-            { toUserId: objectUserId }
-        ];
-    }
-
-    console.log("getRequestsByUserIdStatusRole2: " + JSON.stringify(query));
-
-    let mongoQuery = Friend.find(query);
-
-    if (role === "from") {
-        //console.log("getRequestsByUserIdStatusRole3: from");
-        mongoQuery = mongoQuery.populate("toUserId", "name").lean();
-    } else if (role === "to") {
-        //console.log("getRequestsByUserIdStatusRole3: to");
-        mongoQuery = mongoQuery.populate("fromUserId", "name").lean();
-    } else {
-        //console.log("getRequestsByUserIdStatusRole3: all");
-        mongoQuery = mongoQuery
-            .populate("fromUserId", "name")
-            .populate("toUserId", "name").lean();
-    }
-
-    return mongoQuery;
-};
 
 const updateFriendRequestStatus = (requestId, status) => {
     return Friend.findByIdAndUpdate(requestId, { status }, { returnDocument: 'after' });
