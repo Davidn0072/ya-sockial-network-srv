@@ -24,7 +24,7 @@ const addUser = (obj) => {
 
 // Update
 const updateUser = (id, obj) => {
-    return User.findByIdAndUpdate(id, obj, { new: true });
+    return User.findByIdAndUpdate(id, obj, { returnDocument: 'after' });
 };
 
 // Delete
