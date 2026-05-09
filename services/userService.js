@@ -2,7 +2,7 @@ import * as userRepo from '../repositories/userRepo.js';
 import { getPostByFieldId, deletePost } from '../services/postService.js';
 import { deleteManyFriends } from '../services/friendService.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
-import { normalizeEmail } from './emailService.js';
+import { normalizeEmail } from '../utils/emailValidators.js';
 import bcrypt from 'bcrypt';
 import { AppError } from '../errors/AppError.js';
 
