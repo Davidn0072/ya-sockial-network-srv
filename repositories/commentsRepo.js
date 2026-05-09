@@ -1,33 +1,5 @@
 import Comments from '../models/commentsModel.js';
 
-// Get All
-const getAllComments1 = (queries) => {
-    return Comments.find(queries).lean();
-};
-
-const getAllComments = async ({ postId, parentCommentId, page, limit, sortDir = -1 }) => {
-    const numericSortDir = Number(sortDir) === 1 ? 1 : -1;
-    const safePage = Number(page) > 0 ? Number(page) : 1;
-    const safeLimit = Number(limit) > 0 ? Number(limit) : 10;
-    const skip = (safePage - 1) * safeLimit;
-
-    // console.log("getAllComments postId:" + postId + " parentCommentId:" + parentCommentId + " page:" + page + " limit:" + limit + " skip:" + skip);
-
-    const comments = await Comments.find({ postId, parentCommentId })
-        .sort({ createdAt: numericSortDir })
-        .populate('userId', 'name').lean();
-    // console.log("getAllComments comments1:");
-    //console.log("getAllComments comments:" + comments);
-    const hasMore = comments.length > safeLimit;
-
-    if (hasMore) comments.pop();
-
-    return {
-        data: comments,
-        hasMore
-    };
-};
-
 // Get Page (cursor-based)
 const getCommentsPage = ({ query = {}, options = {} }) => {
     return Comments.find(query)
@@ -66,4 +38,4 @@ const countCommentsByPostId = (postId, parentCommentId = null) => {
     return Comments.countDocuments({ postId, parentCommentId });
 };
 
-export { getAllComments, getCommentsPage, getCommentById, addComment, updateComment, deleteComment, deleteManyComments, countCommentsByPostId };
+export { getCommentsPage, getCommentById, addComment, updateComment, deleteComment, deleteManyComments, countCommentsByPostId };

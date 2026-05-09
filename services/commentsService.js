@@ -3,12 +3,7 @@ import { buildPagination, buildCursorResponse } from '../utils/pagination.js';
 import { validateContent } from '../utils/validators.js';
 import { AppError } from '../errors/AppError.js';
 
-// Get All
-const getAllComments = (queries) => {
-    return commentsRepo.getAllComments(queries);
-};
-
-// Get All Paged (cursor-based - like files)
+// Get All Paged (cursor-based)
 const getAllCommentsPaged = async (params) => {
     const { query, options } = buildPagination({
         cursor: params.cursor,
@@ -91,4 +86,4 @@ const countCommentsByPostId = (postId, parentCommentId = null) => {
     return commentsRepo.countCommentsByPostId(postId, parentCommentId);
 };
 
-export { getAllComments, getAllCommentsPaged, getCommentById, addComment, updateComment, deleteComment, deleteManyComments, countCommentsByPostId };
+export { getAllCommentsPaged, getCommentById, addComment, updateComment, deleteComment, deleteManyComments, countCommentsByPostId };

@@ -9,20 +9,19 @@ const router = express.Router();
 // Get All
 router.get('/', async (req, res) => {
     try {
-        //console.log("getAllComments req.query:" + JSON.stringify(req.query));
         const { postId, parentCommentId, cursor, limit } = req.query;
-        //console.log("getAllComments postId:" + postId + " parentCommentId:" + parentCommentId + " cursor:" + cursor + " limit:" + limit);
-        if (postId) {
-            const result = await commentsService.getAllCommentsPaged({
-                postId,
-                parentCommentId: parentCommentId ?? null,
-                cursor: cursor || null,
-                limit: limit ? Number(limit) : 10
-            });
-            return res.json(result);
+
+        if (!postId) {
+            return res.status(400).json({ message: 'postId is required' });
         }
-        const comments = await commentsService.getAllComments(req.query);
-        res.status(200).json(comments);
+
+        const result = await commentsService.getAllCommentsPaged({
+            postId,
+            parentCommentId: parentCommentId ?? null,
+            cursor: cursor || null,
+            limit: limit ? Number(limit) : 10
+        });
+        res.json(result);
     } catch (error) {
         const { status, message } = parseError(error);
         res.status(status).json({ message });
