@@ -2,6 +2,7 @@ import * as userRepo from '../repositories/userRepo.js';
 import { getPostByFieldId, deletePost } from '../services/postService.js';
 import { deleteManyFriends } from '../services/friendService.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
+import { normalizeEmail } from './emailService.js';
 import bcrypt from 'bcrypt';
 import { AppError } from '../errors/AppError.js';
 
@@ -68,7 +69,8 @@ async function updateUser(userId, data, authenticatedUserId) {
         throw new AppError('You can only update your own profile', 403);
     }
 
-    const { name, email } = data;
+    const { name } = data;
+    const email = data.email ? normalizeEmail(data.email) : null;
 
     if (name) await checkNameUnique(name, userId);
     if (email) validateEmail(email);
@@ -88,6 +90,9 @@ async function updateUser(userId, data, authenticatedUserId) {
         delete data.newPassword;
         delete data.oldPassword;
         delete data.confirmPassword;
+    }
+    if (email) {
+        data.email = email;
     }
     return userRepo.updateUser(userId, data);
 }
@@ -118,13 +123,15 @@ const deleteUser = async (id, authenticatedUserId) => {
 };
 
 const getUserByEmailAndPassword = (email) => {
-    return userRepo.getUserByEmailAndPassword(email);
+    const normalized = normalizeEmail(email);
+    return userRepo.getUserByEmailAndPassword(normalized);
 };
 const isNameExists = (name) => {
     return userRepo.isNameExists(name);
 };
 const isEmailExists = (email) => {
-    return userRepo.isEmailExists(email);
+    const normalized = normalizeEmail(email);
+    return userRepo.isEmailExists(normalized);
 };
 
 function validatePasswordMatch(password, confirmPassword) {
@@ -159,7 +166,8 @@ function validateName(name) {
 }
 
 async function register(data) {
-    const { name, email, password, confirmPassword } = data;
+    const { name, password, confirmPassword } = data;
+    const email = normalizeEmail(data.email);
 
     validateName(name);
     validateEmail(email);
@@ -205,7 +213,8 @@ async function checkNameUnique(name, excludeUserId = null) {
 }
 
 async function checkEmailUnique(email, excludeUserId = null) {
-    const user = await findOneByField({ email });
+    const normalized = normalizeEmail(email);
+    const user = await findOneByField({ email: normalized });
 
     if (user && user._id.toString() !== excludeUserId) {
         throw new AppError('Email already exists', 400);
