@@ -11,7 +11,7 @@ import * as storageUploadFileService from '../services/storageUploadFileService.
 router.post(
     '/:postId',
     storageUploadFileMiddleware.single('file'),
-    async (req, res) => {
+    async (req, res, next) => {
         try {
             if (!req.file) {
                 return res.status(400).json({ message: 'No file uploaded' });
@@ -20,9 +20,12 @@ router.post(
             const result = await storageUploadFileService.storageUploadFile(req);
             return res.status(200).json({ message: 'File uploaded successfully', result });
         } catch (error) {
-            const { status, message } = parseError(error);
-            return res.status(status).json({ message });
+            next(error);
         }
+    },
+    (err, req, res, next) => {
+        const { status, message } = parseError(err);
+        return res.status(status).json({ message });
     }
 );
 export default router;
