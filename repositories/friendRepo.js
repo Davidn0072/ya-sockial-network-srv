@@ -1,25 +1,6 @@
 import Friend from '../models/friendModel.js';
 import mongoose from 'mongoose';
-/*// Get All
-const getAllFriends = (queries) => {
-    return Friend.find(queries);
-};
 
-// Get By ID
-const getFriendById = (id) => {
-    return Friend.findById(id);
-};
-
-// Create
-const addFriend = (obj) => {
-    return Friend.create(obj);
-};
-
-// Update
-const updateFriend = (id, obj) => {
-    return Friend.findByIdAndUpdate(id, obj);
-};
-*/
 // Delete
 const deleteFriendRequest = (id) => {
     return Friend.findByIdAndDelete(id);
