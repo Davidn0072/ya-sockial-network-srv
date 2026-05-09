@@ -9,6 +9,9 @@ import { getUserDomainOfInterest } from '../services/userService.js';
 import { AppError } from '../errors/AppError.js';
 import { validateContent } from '../utils/validators.js';
 
+const escapeRegex = (str) =>
+    str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // Get All
 const buildFilter = ({ userId, category }) => {
     const filter = {};
@@ -23,7 +26,8 @@ const getAllPosts = async (params) => {
     const { query, options } = buildPagination(params);
 
     if (search) {
-        filter.content = { $regex: search, $options: 'i' };
+        const escapedSearch = escapeRegex(search);
+        filter.content = { $regex: escapedSearch, $options: 'i' };
     }
 
     const posts = await postRepo.getAllPosts({
