@@ -70,6 +70,7 @@ chat.use((socket, next) => {
 
 async function verifyUser(socket) {
     const now = Date.now();
+    //console.log('verifyUser')
 
     if (!socket.lastVerified || now - socket.lastVerified > 300000) {
         try {
