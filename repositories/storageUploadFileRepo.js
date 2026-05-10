@@ -17,14 +17,14 @@ const deleteStorageFileInfo = async (filename) => {
   const filePath = path.join('uploads', filename);
 
   try {
-    console.log('Deleting file:', filePath);
+    //console.log('Deleting file:', filePath);
 
     // נבדוק קיום בצורה async-ית נקייה
     await fs.access(filePath);
 
     await fs.unlink(filePath);
 
-    console.log('Deleted file:', filePath);
+    //console.log('Deleted file:', filePath);
     return true;
 
   } catch (err) {
@@ -37,7 +37,7 @@ const deletePostFolder = async (postId) => {
   const folderPath = path.join('uploads', String(postId));
 
   try {
-    console.log('deletePostFolder:', folderPath);
+    //console.log('deletePostFolder:', folderPath);
 
     // בדיקת קיום (sync קצר ולעניין)
     if (!fsSync.existsSync(folderPath)) {
@@ -60,7 +60,7 @@ const deletePostFolder = async (postId) => {
       force: true
     });
 
-    console.log(`Folder deleted: ${folderPath}`);
+    //console.log(`Folder deleted: ${folderPath}`);
     return true;
 
   } catch (err) {
