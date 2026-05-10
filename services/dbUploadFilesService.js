@@ -7,6 +7,9 @@ import { getPostById } from '../services/postService.js';
 
 // Get All Paged (cursor-based)
 const getAllDBUploadFilesPaged = async (params) => {
+    if (!params.postId) {
+        throw new AppError('postId is required', 400);
+    }
     const { query, options } = buildPagination({
         cursor: params.cursor,
         limit: params.limit || 10
@@ -37,20 +40,22 @@ const getDBUploadFileById = async (id) => {
 };
 
 // Create
-const createDBUploadFile = async (obj) => {
+const addDBUploadFile = async (obj) => {
     if (!obj.originalFileName) {
         throw new AppError("originalFileName is required", 400);
     }
     if (!obj.storageFileName) {
         throw new AppError("storageFileName is required", 400);
     }
+
     const post = await getPostById(obj.postId);
     if (!post) {
         throw new AppError("Post not found", 404);
     }
-    if (String(post.userId._id) !== String(obj.userId)) {
+    if (post.userId._id.toString() !== obj.userId.toString()) {
         throw new AppError("You can not add file to a post you do not own", 403);
     }
+
     const newUploadFile = await dbUploadFilesRepo.addDBUploadFile(obj);
     if (!newUploadFile) {
         throw new AppError('Failed to create file in DB', 400);
