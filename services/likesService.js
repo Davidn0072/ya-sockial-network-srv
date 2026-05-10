@@ -19,15 +19,6 @@ const getLikeById = async (id) => {
     return like;
 };
 
-// Create
-const addLike = async (obj) => {
-    const newLike = await likesRepo.addLike(obj);
-    if (!newLike) {
-        throw new AppError("Failed to create like", 400);
-    }
-    return newLike;
-};
-
 // Update
 const updateLike = async (id, obj, userId) => {
     const like = await getLikeById(id);
@@ -69,17 +60,28 @@ const getAllLikesGroupByType = async (queries) => {
     return await likesRepo.getAllLikesGroupByType(queries);
 };
 
-const checkTargetAndTargetTypeExists = async (targetId, targetType) => {
+const checkTargetAndTargetTypesAreValid = async (userId, targetId, targetType) => {
     if (targetType === 'post') {
-        if (!await getPostById(targetId)) {
+        const post = await getPostById(targetId);
+        if (!post) {
             throw new AppError("Post not found", 404);
         }
-    } else if ((targetType === 'comment') || (targetType === 'reply')) {
-        if (!await getCommentById(targetId)) {
-            throw new AppError("Comment not found", 404);
+        if (post.userId._id.toString() === userId.toString()) {
+            throw new AppError("You can not like your own post", 403);
         }
-    } else {
-        throw new AppError("Target type not supported", 400);
+    }
+    else {
+        if ((targetType === 'comment') || (targetType === 'reply')) {
+            const comment = await getCommentById(targetId);
+            if (!comment) {
+                throw new AppError("Comment not found", 404);
+            }
+            if (comment.userId._id.toString() === userId.toString()) {
+                throw new AppError("You can not like your own comment", 403);
+            }
+        } else {
+            throw new AppError("Target type not supported", 400);
+        }
     }
     return true;
 };
@@ -90,7 +92,7 @@ const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
         if (!await getUserById(userId)) {
             throw new AppError("User not found", 404);
         }
-        await checkTargetAndTargetTypeExists(targetId, targetType);
+        await checkTargetAndTargetTypesAreValid(userId, targetId, targetType);
 
         const existing = await likesRepo.getLikeByUserIdAndTargetIdAndTargetType({
             userId,
@@ -158,4 +160,4 @@ const getLikesByType = async (params) => {
     return response;
 };
 
-export { getAllLikes, getLikeById, addLike, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };
+export { getAllLikes, getLikeById, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };
