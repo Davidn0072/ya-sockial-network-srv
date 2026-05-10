@@ -60,10 +60,6 @@ const sendFriendRequest = async (fromUserId, toUserId) => {
     return friendRepo.createFriendRequest(fromUserId, toUserId);
 };
 
-const getIncomingRequests = async (userId) => {
-    return friendRepo.getIncomingRequests(userId);
-};
-
 const acceptRequest = async (requestId, userId) => {
     const request = await friendRepo.getFriendRequestById(requestId);
 
@@ -148,4 +144,4 @@ const getRequestsByUserIdStatusRole = async (userId, status, role, params = {}) 
     return response;
 };
 
-export { createFriendRequest, deleteFriendRequest, sendFriendRequest, deleteManyFriends, getIncomingRequests, acceptRequest, rejectRequest, getFriends, getRequestsByUserIdStatusRole };
+export { createFriendRequest, deleteFriendRequest, sendFriendRequest, deleteManyFriends, acceptRequest, rejectRequest, getFriends, getRequestsByUserIdStatusRole };
