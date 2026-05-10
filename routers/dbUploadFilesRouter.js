@@ -8,7 +8,7 @@ const router = express.Router();
 
 // Get All Upload Files (with cursor-based pagination for post)
 router.get('/', async (req, res) => {
-    console.log("getAllFilesForPost req.query:" + JSON.stringify(req.query));
+    //console.log("getAllFilesForPost req.query:" + JSON.stringify(req.query));
     try {
         const { postId, cursor, limit } = req.query;
 
@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
 // Get By Id
 router.get('/:id', async (req, res) => {
-    console.log("getUploadFileById req.params:" + JSON.stringify(req.params));
+    //console.log("getUploadFileById req.params:" + JSON.stringify(req.params));
     try {
         const { id } = req.params;
         const uploadfile = await dbUploadFilesService.getDBUploadFileById(id);
