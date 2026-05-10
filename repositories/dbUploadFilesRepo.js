@@ -1,10 +1,5 @@
 import dbUploadFilesModel from '../models/dbUploadFilesModel.js';
 
-// Get All
-const getAllDBUploadFiles = (queries) => {
-    return dbUploadFilesModel.find(queries).lean();
-};
-
 // Get Page (cursor-based)
 const getDBUploadFilesPage = ({ query = {}, options = {} }) => {
     return dbUploadFilesModel.find(query)
@@ -43,4 +38,4 @@ const countDBUploadFilesByPostId = (postId) => {
 };
 
 
-export { getAllDBUploadFiles, getDBUploadFilesPage, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles, countDBUploadFilesByPostId };
+export { getDBUploadFilesPage, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles, countDBUploadFilesByPostId };
