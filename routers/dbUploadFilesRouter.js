@@ -12,10 +12,6 @@ router.get('/', async (req, res) => {
     try {
         const { postId, cursor, limit } = req.query;
 
-        if (!postId) {
-            return res.status(400).json({ message: 'postId is required' });
-        }
-
         const result = await dbUploadFilesService.getAllDBUploadFilesPaged({
             postId,
             cursor: cursor || null,
