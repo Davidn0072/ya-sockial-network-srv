@@ -112,7 +112,7 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await likesService.deleteLike(id);
+        const result = await likesService.deleteLike(id, req.user.id);
         res.status(200).json(result);
     } catch (error) {
         const { status, message } = parseError(error);
