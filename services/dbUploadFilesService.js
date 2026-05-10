@@ -48,9 +48,23 @@ const addDBUploadFile = (obj) => {
     return newUploadFile;
 };
 
-// Update
-const updateDBUploadFile = (id, obj) => {
-    const updatedUploadFile = dbUploadFilesRepo.updateDBUploadFile(id, obj);
+// Update (only display name — blocks accidental/malicious changes to storage keys)
+const updateDBUploadFile = async (id, obj, userId) => {
+    const uploadfile = await getDBUploadFileById(id);
+    if (!uploadfile) {
+        throw new AppError('File not found in DB', 404);
+    }
+    if (uploadfile.userId.toString() !== userId.toString()) {
+        throw new AppError("You are not the owner of this file", 403);
+    }
+    if (obj.originalFileName === undefined) {
+        throw new AppError('originalFileName is required', 400);
+    }
+    const trimmed = String(obj.originalFileName).trim();
+    if (!trimmed) {
+        throw new AppError('originalFileName cannot be empty', 400);
+    }
+    const updatedUploadFile = await dbUploadFilesRepo.updateDBUploadFile(id, { originalFileName: trimmed });
     if (!updatedUploadFile) {
         throw new AppError('Failed to update file in DB', 400);
     }
@@ -58,11 +72,14 @@ const updateDBUploadFile = (id, obj) => {
 };
 
 // Delete
-const deleteDBUploadFile = async (id) => {
-    const uploadfile = await getDBUploadFileById(id);
+const deleteDBUploadFile = async (id, userId) => {
 
+    const uploadfile = await getDBUploadFileById(id);
     if (!uploadfile) {
         throw new AppError('File not found in DB', 404);
+    }
+    if (uploadfile.userId.toString() !== userId.toString()) {
+        throw new AppError("You are not the owner of this file", 403);
     }
 
     await storageUploadFileRepo.deleteStorageFileInfo(uploadfile.postId + '/' + uploadfile.storageFileName);

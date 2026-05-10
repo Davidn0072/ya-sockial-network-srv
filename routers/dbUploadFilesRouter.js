@@ -58,7 +58,7 @@ router.patch('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.body;
-        const result = await dbUploadFilesService.updateDBUploadFile(id, data);
+        const result = await dbUploadFilesService.updateDBUploadFile(id, data, req.user.id);
         res.status(200).json(result);
     } catch (error) {
         const { status, message } = parseError(error);
@@ -71,7 +71,7 @@ router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         //console.log('Deleting file:', id);
-        const result = await dbUploadFilesService.deleteDBUploadFile(id);
+        const result = await dbUploadFilesService.deleteDBUploadFile(id, req.user.id);
         res.status(200).json(result);
     } catch (error) {
         const { status, message } = parseError(error);
