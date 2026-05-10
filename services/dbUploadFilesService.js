@@ -37,7 +37,7 @@ const getDBUploadFileById = async (id) => {
 };
 
 // Create
-const addDBUploadFile = async (obj) => {
+const createDBUploadFile = async (obj) => {
     if (!obj.originalFileName) {
         throw new AppError("originalFileName is required", 400);
     }
@@ -51,7 +51,7 @@ const addDBUploadFile = async (obj) => {
     if (String(post.userId._id) !== String(obj.userId)) {
         throw new AppError("You can not add file to a post you do not own", 403);
     }
-    const newUploadFile = dbUploadFilesRepo.addDBUploadFile(obj);
+    const newUploadFile = await dbUploadFilesRepo.addDBUploadFile(obj);
     if (!newUploadFile) {
         throw new AppError('Failed to create file in DB', 400);
     }
