@@ -4,9 +4,6 @@ import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { AppError } from '../errors/AppError.js';
 import { getPostById } from '../services/postService.js';
 // Get All
-const getAllDBUploadFiles = (queries) => {
-    return dbUploadFilesRepo.getAllDBUploadFiles(queries);
-};
 
 // Get All Paged (cursor-based)
 const getAllDBUploadFilesPaged = async (params) => {
@@ -31,8 +28,8 @@ const getAllDBUploadFilesPaged = async (params) => {
 };
 
 // Get By ID
-const getDBUploadFileById = (id) => {
-    const uploadfile = dbUploadFilesRepo.getDBUploadFileById(id);
+const getDBUploadFileById = async (id) => {
+    const uploadfile = await dbUploadFilesRepo.getDBUploadFileById(id);
     if (!uploadfile) {
         throw new AppError('File not found in DB', 404);
     }
@@ -110,4 +107,4 @@ const countDBUploadFilesByPostId = (postId) => {
     return dbUploadFilesRepo.countDBUploadFilesByPostId(postId);
 };
 
-export { getAllDBUploadFiles, getAllDBUploadFilesPaged, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles, countDBUploadFilesByPostId };
+export { getAllDBUploadFilesPaged, getDBUploadFileById, addDBUploadFile, updateDBUploadFile, deleteDBUploadFile, deleteManyDBUploadFiles, countDBUploadFilesByPostId };
