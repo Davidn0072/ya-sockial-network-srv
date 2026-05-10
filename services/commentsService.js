@@ -2,6 +2,7 @@ import * as commentsRepo from '../repositories/commentsRepo.js';
 import { buildPagination, buildCursorResponse } from '../utils/pagination.js';
 import { validateContent } from '../utils/validators.js';
 import { AppError } from '../errors/AppError.js';
+import { getPostById } from '../services/postService.js';
 
 // Get All Paged (cursor-based)
 const getAllCommentsPaged = async (params) => {
@@ -29,6 +30,11 @@ const getCommentById = async (id) => {
 
 // Create
 const addComment = async (obj, userId) => {
+    const post = await getPostById(obj.postId);
+    if (!post) {
+        throw new AppError("Post not found", 404);
+    }
+
     const content = validateContent(obj.content);
     const newComment = await commentsRepo.addComment({ ...obj, content, userId });
     if (!newComment) {
