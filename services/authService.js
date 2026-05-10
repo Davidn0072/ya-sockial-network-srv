@@ -27,7 +27,7 @@ async function login(email, password, ip) {
         { expiresIn: '1h' }
     );
 
-    return { token, userId: user._id, userName: user.name };
+    return { token, userId: user._id, user: user.name };
 }
 
 export { login };
