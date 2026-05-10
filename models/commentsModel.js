@@ -27,16 +27,6 @@ const commentSchema = new mongoose.Schema(
             ref: 'Comments',
             default: null,
         },
-
-        isDeleted: {
-            type: Boolean,
-            default: false,
-        },
-
-        deletedAt: {
-            type: Date,
-            default: null,
-        },
     },
     {
         versionKey: false,
