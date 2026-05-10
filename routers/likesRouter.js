@@ -100,7 +100,7 @@ router.patch('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.body;
-        const result = await likesService.updateLike(id, data);
+        const result = await likesService.updateLike(id, data, req.user.id);
         res.status(200).json(result);
     } catch (error) {
         const { status, message } = parseError(error);
