@@ -2,7 +2,7 @@ import * as dbUploadFilesRepo from '../repositories/dbUploadFilesRepo.js';
 import * as storageUploadFileRepo from '../repositories/storageUploadFileRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { AppError } from '../errors/AppError.js';
-
+import { getPostById } from '../services/postService.js';
 // Get All
 const getAllDBUploadFiles = (queries) => {
     return dbUploadFilesRepo.getAllDBUploadFiles(queries);
@@ -40,7 +40,20 @@ const getDBUploadFileById = (id) => {
 };
 
 // Create
-const addDBUploadFile = (obj) => {
+const addDBUploadFile = async (obj) => {
+    if (!obj.originalFileName) {
+        throw new AppError("originalFileName is required", 400);
+    }
+    if (!obj.storageFileName) {
+        throw new AppError("storageFileName is required", 400);
+    }
+    const post = await getPostById(obj.postId);
+    if (!post) {
+        throw new AppError("Post not found", 404);
+    }
+    if (String(post.userId._id) !== String(obj.userId)) {
+        throw new AppError("You can not add file to a post you do not own", 403);
+    }
     const newUploadFile = dbUploadFilesRepo.addDBUploadFile(obj);
     if (!newUploadFile) {
         throw new AppError('Failed to create file in DB', 400);

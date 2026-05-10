@@ -41,17 +41,20 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+/*
+NOT USED: the file is uploaded to the storage first, then the DB is updated.
 // Add a new upload file
 router.post('/', async (req, res) => {
     try {
         const uploadfileObj = req.body;
-        const newUploadFile = await dbUploadFilesService.addDBUploadFile(uploadfileObj);
+        const newUploadFile = await dbUploadFilesService.addDBUploadFile(uploadfileObj, req.user.id);
         res.status(201).json({ message: `The new ID: ${newUploadFile._id}` });
     } catch (error) {
         const { status, message } = parseError(error);
         res.status(status).json({ message });
     }
 });
+*/
 
 // Update a upload file
 router.patch('/:id', async (req, res) => {
