@@ -1,6 +1,9 @@
 import * as likesRepo from '../repositories/likesRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { AppError, parseError } from '../errors/AppError.js';
+import { getPostById } from '../services/postService.js';
+import { getCommentById } from '../services/commentsService.js';
+import { getUserById } from '../services/userService.js';
 
 // Get All
 const getAllLikes = (queries) => {
@@ -65,10 +68,29 @@ const deleteManyLikes = (query) => {
 const getAllLikesGroupByType = async (queries) => {
     return await likesRepo.getAllLikesGroupByType(queries);
 };
+
+const checkTargetAndTargetTypeExists = async (targetId, targetType) => {
+    if (targetType === 'post') {
+        if (!await getPostById(targetId)) {
+            throw new AppError("Post not found", 404);
+        }
+    } else if ((targetType === 'comment') || (targetType === 'reply')) {
+        if (!await getCommentById(targetId)) {
+            throw new AppError("Comment not found", 404);
+        }
+    } else {
+        throw new AppError("Target type not supported", 400);
+    }
+    return true;
+};
 const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
     try {
         //console.log("addOrUpdateReaction-input:", { userId, targetId, targetType, type });
 
+        if (!await getUserById(userId)) {
+            throw new AppError("User not found", 404);
+        }
+        await checkTargetAndTargetTypeExists(targetId, targetType);
 
         const existing = await likesRepo.getLikeByUserIdAndTargetIdAndTargetType({
             userId,
