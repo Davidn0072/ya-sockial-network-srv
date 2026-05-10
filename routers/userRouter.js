@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
     try {
         const userObj = req.body;
         const newUser = await usersService.addUser(userObj);
-        res.status(201).json({ message: `The new ID: ${newUser._id}` });
+        res.status(201).json(newUser);
     } catch (error) {
         const { status, message } = parseError(error);
         res.status(status).json({ message });
