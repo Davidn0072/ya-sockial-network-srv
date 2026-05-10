@@ -19,7 +19,7 @@ const getFriendRequestById = (id) => {
 const findFriendRequestByFromAndToUserId = (fromUserId, toUserId) => {
     return Friend.findOne({
         $or: [
-            { fromUserId, toUserId },
+            { fromUserId: fromUserId, toUserId: toUserId },
             { fromUserId: toUserId, toUserId: fromUserId }
         ]
     }).lean();
