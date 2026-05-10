@@ -42,7 +42,7 @@ const getAllPosts = async (params) => {
         const postObj = post.toObject ? post.toObject() : post;
         const content = postObj.content || '';
         const isLonger = content.length > 120;
-
+        //console.log("postObj:", JSON.stringify(postObj, null, 2));
         const commentsCount = await countCommentsByPostId(postObj._id, null);
         const likesStats = await getAllLikesGroupByType({ targetId: postObj._id, targetType: 'post' });
         const filesCount = await countDBUploadFilesByPostId(postObj._id);
