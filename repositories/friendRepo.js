@@ -97,7 +97,7 @@ const getRequestsByUserIdStatusRole = async ({ userId, status, role }, paginatio
     //console.log("getRequestsByUserIdStatusRole2: " + JSON.stringify(populate));
 
     let mongoQuery = Friend.find(query).populate(populate).lean();
-
+    //console.log("getRequestsByUserIdStatusRole31: " + JSON.stringify(mongoQuery));
     if (options.sort) mongoQuery = mongoQuery.sort(options.sort);
     if (options.limit) mongoQuery = mongoQuery.limit(options.limit);
     if (options.skip) mongoQuery = mongoQuery.skip(options.skip);
