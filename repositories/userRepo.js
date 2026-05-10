@@ -79,7 +79,6 @@ const searchUsersByName = async (search, genQuery, options) => {
     const finalQuery = { ...genQuery, ...query };
 
     return User.find(finalQuery)
-        .select('_id username name')
         .sort(options.sort)
         .skip(options.skip || 0)
         .limit(options.limit).lean();
