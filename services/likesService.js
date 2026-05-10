@@ -27,6 +27,13 @@ const addLike = async (obj) => {
 
 // Update
 const updateLike = async (id, obj) => {
+    const like = await getLikeById(id);
+    if (!like) {
+        throw new AppError("Like not found", 404);
+    }
+    if (like.userId !== obj.userId) {
+        throw new AppError("You are not authorized to update this like", 403);
+    }
     const updatedLike = await likesRepo.updateLike(id, obj);
     if (!updatedLike) {
         throw new AppError("Failed to update like", 400);
@@ -36,6 +43,13 @@ const updateLike = async (id, obj) => {
 
 // Delete
 const deleteLike = async (id) => {
+    const like = await getLikeById(id);
+    if (!like) {
+        throw new AppError("Like not found", 404);
+    }
+    if (like.userId !== obj.userId) {
+        throw new AppError("You are not authorized to delete this like", 403);
+    }
     const deletedLike = await likesRepo.deleteLike(id);
     if (!deletedLike) {
         throw new AppError("Failed to delete like", 400);
