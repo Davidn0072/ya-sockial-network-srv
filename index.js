@@ -68,6 +68,28 @@ chat.use((socket, next) => {
     }
 });
 
+async function verifyUser(socket) {
+    const now = Date.now();
+
+    if (!socket.lastVerified || now - socket.lastVerified > 300000) {
+        try {
+            jwt.verify(socket.handshake.auth.token, process.env.SECRET_KEY);
+            const user = await getUserById(socket.userId);
+            if (!user) {
+                socket.emit('error', { message: 'User not found' });
+                socket.disconnect();
+                return false;
+            }
+            socket.lastVerified = now;
+        } catch (error) {
+            socket.emit('error', { message: 'Authentication failed' });
+            socket.disconnect();
+            return false;
+        }
+    }
+    return true;
+}
+
 chat.on('connection', async (socket) => {
     //console.log('User connected:', socket.userId);
     try {
@@ -84,12 +106,17 @@ chat.on('connection', async (socket) => {
         return;
     }
 
-    socket.on('chat message', (msg) => {
+    socket.join('public');
+
+    socket.on('chat message', async (msg) => {
         if (!msg || msg.trim() === '') {
             return;
         }
+        if (!(await verifyUser(socket))) {
+            return;
+        }
         try {
-            chat.emit('chat message', {
+            chat.to('public').emit('chat message', {
                 from: socket.userName,
                 msg: msg,
                 timestamp: new Date()
@@ -100,20 +127,32 @@ chat.on('connection', async (socket) => {
         }
     });
 
-    socket.on('join private', ({ targetUserId, targetUserName }) => {
+    socket.on('join private', async ({ targetUserId }) => {
+        if (!(await verifyUser(socket))) {
+            return;
+        }
         if (!targetUserId || targetUserId === socket.userId) {
             return socket.emit('error', { message: 'Invalid target user' });
         }
-
+        const targetUser = await getUserById(targetUserId);
+        if (!targetUser) {
+            return socket.emit('error', { message: 'User not found' });
+        }
         const room = createRoom(socket.userId, targetUserId);
         socket.join(room);
     });
 
-    socket.on('private message', ({ msg, targetUserId, targetUserName }) => {
+    socket.on('private message', async ({ msg, targetUserId }) => {
         if (!msg || msg.trim() === '') {
             return;
         }
+        if (!(await verifyUser(socket))) {
+            return;
+        }
         try {
+            if (!targetUserId || typeof targetUserId !== 'string') {
+                return socket.emit('error', { message: 'Invalid target' });
+            }
             const room = createRoom(socket.userId, targetUserId);
             chat.to(room).emit('private message', {
                 from: socket.userName,

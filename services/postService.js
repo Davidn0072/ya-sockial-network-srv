@@ -1,7 +1,7 @@
 import * as postRepo from '../repositories/postRepo.js';
 import { deleteManyLikes, getAllLikesGroupByType } from '../services/likesService.js';
 import { deleteManyComments, getAllCommentsPaged, countCommentsByPostId } from '../services/commentsService.js';
-import { deleteManyDBUploadFiles, getAllDBUploadFiles, getAllDBUploadFilesPaged, countDBUploadFilesByPostId } from '../services/dbUploadFilesService.js';
+import { deleteManyDBUploadFiles, getAllDBUploadFilesPaged, countDBUploadFilesByPostId } from '../services/dbUploadFilesService.js';
 import { deletePostFolder } from '../repositories/storageUploadFileRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { getRecommendedPostIds } from '../services/postRecommendation.service.js';
