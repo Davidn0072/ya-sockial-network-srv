@@ -5,10 +5,6 @@ import { getPostById } from '../services/postService.js';
 import { getCommentById } from '../services/commentsService.js';
 import { getUserById } from '../services/userService.js';
 
-// Get All
-const getAllLikes = (queries) => {
-    return likesRepo.getAllLikes(queries);
-};
 
 // Get By ID
 const getLikeById = async (id) => {
@@ -160,4 +156,4 @@ const getLikesByType = async (params) => {
     return response;
 };
 
-export { getAllLikes, getLikeById, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };
+export { getLikeById, updateLike, deleteLike, deleteManyLikes, getAllLikesGroupByType, addOrUpdateReaction, getLikesByType };
