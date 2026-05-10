@@ -1,6 +1,7 @@
 import * as friendRepo from '../repositories/friendRepo.js';
 import { buildPagination, buildCursorResponse } from "../utils/pagination.js";
 import { AppError } from '../errors/AppError.js';
+import { getUserById } from '../services/userService.js';
 
 // Delete many friends
 const deleteManyFriends = (query) => {
@@ -11,11 +12,11 @@ const deleteManyFriends = (query) => {
 const deleteFriendRequest = async (id, userId) => {
     const request = await friendRepo.getFriendRequestById(id);
 
-    if (!request) throw new AppError("Request not found", 404);
+    if (!request) throw new AppError("Friend request not found", 404);
 
     const isInvolved = request.fromUserId.toString() === userId || request.toUserId.toString() === userId;
     if (!isInvolved) {
-        throw new AppError("Not authorized", 401);
+        throw new AppError("You are not involved in this friend request", 401);
     }
 
     return friendRepo.deleteFriendRequest(id);
@@ -42,13 +43,18 @@ const sendFriendRequest = async (fromUserId, toUserId) => {
         throw new AppError("Cannot send request to yourself", 400);
     }
 
+    const user = await getUserById(toUserId);
+    if (!user) {
+        throw new AppError("The user you are trying to send a friend request to is not found", 404);
+    }
+
     const existing = await friendRepo.findFriendRequestByFromAndToUserId(
         fromUserId,
         toUserId
     );
 
     if (existing) {
-        throw new AppError("Friend request already exists", 400);
+        throw new AppError("A friend request to this user already exists", 400);
     }
 
     return friendRepo.createFriendRequest(fromUserId, toUserId);
@@ -61,14 +67,19 @@ const getIncomingRequests = async (userId) => {
 const acceptRequest = async (requestId, userId) => {
     const request = await friendRepo.getFriendRequestById(requestId);
 
-    if (!request) throw new AppError("Request not found", 404);
+    if (!request) throw new AppError("Friend request not found", 404);
+
+    const user = await getUserById(request.toUserId);
+    if (!user) {
+        throw new AppError("The user you are trying to accept a friend request from is not found", 404);
+    }
 
     if (request.toUserId.toString() !== userId) {
-        throw new AppError("Not authorized", 401);
+        throw new AppError("You can only accept friend requests sent to you", 401);
     }
 
     if (request.status !== "pending") {
-        throw new AppError("Already handled", 400);
+        throw new AppError("This friend request has already been accepted or rejected", 400);
     }
 
     return friendRepo.updateFriendRequestStatus(requestId, "accepted");
@@ -77,28 +88,22 @@ const acceptRequest = async (requestId, userId) => {
 const rejectRequest = async (requestId, userId) => {
     const request = await friendRepo.getFriendRequestById(requestId);
 
-    if (!request) throw new AppError("Request not found", 404);
+    if (!request) throw new AppError("Friend request not found", 404);
 
     if (request.toUserId.toString() !== userId) {
-        throw new AppError("Not authorized", 401);
+        throw new AppError("You can only reject friend requests sent to you", 401);
+    }
+
+    const user = await getUserById(request.toUserId);
+    if (!user) {
+        throw new AppError("The user you are trying to reject a friend request from is not found", 404);
     }
 
     if (request.status !== "pending") {
-        throw new AppError("Already handled", 400);
+        throw new AppError("This friend request has already been accepted or rejected", 400);
     }
 
     return friendRepo.updateFriendRequestStatus(requestId, "rejected");
-};
-
-const unfriend = async (id, userId, otherUserId) => {
-    //console.log("unfriend1: " + userId + " " + otherUserId);
-    const relation = await friendRepo.getRequestsByUserIdStatusRole(userId, otherUserId, "");
-    //console.log("unfriend2: " + relation);
-    if (!relation) {
-        throw new AppError("Not friends", 400);
-    }
-
-    return friendRepo.deleteFriendRequest(relation._id);
 };
 
 const getFriends = async (userId, params = {}) => {
@@ -122,15 +127,11 @@ const getFriends = async (userId, params = {}) => {
     return response;
 };
 
-const getRequestsByUserIdStatusRole_OLD = async (userId, status, role) => {
-    return friendRepo.getRequestsByUserIdStatusRole({ userId, status, role });
-};
-
 const getRequestsByUserIdStatusRole = async (userId, status, role, params = {}) => {
     const { query, options } = buildPagination(params);
 
     const friends = await friendRepo.getRequestsByUserIdStatusRole({ userId, status, role }, query, options);
-
+    //console.log("getRequestsByUserIdStatusRole3: " + JSON.stringify(friends));
     const mappedFriends = friends.map(f => {
         const isMe = f.fromUserId._id.toString() === userId.toString();
 
@@ -147,4 +148,4 @@ const getRequestsByUserIdStatusRole = async (userId, status, role, params = {}) 
     return response;
 };
 
-export { createFriendRequest, deleteFriendRequest, sendFriendRequest, deleteManyFriends, findFriendRequestByFromAndToUserId, getIncomingRequests, acceptRequest, rejectRequest, getFriends, getRequestsByUserIdStatusRole };
+export { createFriendRequest, deleteFriendRequest, sendFriendRequest, deleteManyFriends, getIncomingRequests, acceptRequest, rejectRequest, getFriends, getRequestsByUserIdStatusRole };
