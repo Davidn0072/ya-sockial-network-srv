@@ -6,19 +6,6 @@ const router = express.Router();
 
 // Base URL: 'http://localhost:3000/likes'
 
-// Get All Likes
-router.get('/', async (req, res) => {
-    try {
-        //console.log('likeRouter-getAllLikes-req.query:', req.query);
-        const queries = req.query
-        const likes = await likesService.getAllLikes(queries);
-        res.status(200).json(likes);
-    } catch (error) {
-        const { status, message } = parseError(error);
-        res.status(status).json({ message });
-    }
-});
-
 // Get likes by type with reaction type (more specific - must be before /by-type/:targetId)
 router.get('/by-type/:targetId/:type', async (req, res) => {
     try {
