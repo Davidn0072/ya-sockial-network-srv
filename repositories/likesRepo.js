@@ -104,11 +104,9 @@ const getLikesByType = async (postId, reactionType, genQuery, options) => {
     }
 
     const finalQuery = { ...genQuery, ...query };
-
     return await Likes.find(finalQuery)
         .populate('userId', 'name')
         .sort(options.sort)
-        .skip(options.skip || 0)
         .limit(options.limit).lean();
 };
 
