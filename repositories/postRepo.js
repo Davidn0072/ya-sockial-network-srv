@@ -2,8 +2,6 @@ import Post from '../models/postModel.js';
 
 // Get All
 const getAllPosts = ({ query = {}, options = {} } = {}) => {
-    console.log("getAllPosts-query:", JSON.stringify(query, null, 2));
-    console.log("getAllPosts-options:", JSON.stringify(options, null, 2));
     return Post.find(query)
         .sort(options.sort)
         .populate('userId', 'name')
