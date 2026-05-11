@@ -6,6 +6,14 @@ import { getPostById } from '../services/postService.js';
 
 // Get All Paged (cursor-based)
 const getAllCommentsPaged = async (params) => {
+
+    const { postId, parentCommentId, cursor, limit } = params;
+
+    if (!postId) {
+        throw new AppError('postId is required', 400);
+    }
+
+
     const { query, options } = buildPagination({
         cursor: params.cursor,
         limit: params.limit || 10
