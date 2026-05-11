@@ -46,7 +46,6 @@ const getFriends = (userId, paginationQuery = {}, options = {}) => {
 
     if (options.sort) mongoQuery = mongoQuery.sort(options.sort);
     if (options.limit) mongoQuery = mongoQuery.limit(options.limit);
-    if (options.skip) mongoQuery = mongoQuery.skip(options.skip);
 
     return mongoQuery;
 };
@@ -92,15 +91,12 @@ const buildFriendPopulate = (role) => {
 const getRequestsByUserIdStatusRole = async ({ userId, status, role }, paginationQuery = {}, options = {}) => {
     const baseQuery = buildFriendQuery({ userId, status, role });
     const query = { ...baseQuery, ...paginationQuery };
-    //console.log("getRequestsByUserIdStatusRole1: " + JSON.stringify(query));
     const populate = buildFriendPopulate(role);
-    //console.log("getRequestsByUserIdStatusRole2: " + JSON.stringify(populate));
 
     let mongoQuery = Friend.find(query).populate(populate).lean();
-    //console.log("getRequestsByUserIdStatusRole31: " + JSON.stringify(mongoQuery));
+
     if (options.sort) mongoQuery = mongoQuery.sort(options.sort);
     if (options.limit) mongoQuery = mongoQuery.limit(options.limit);
-    if (options.skip) mongoQuery = mongoQuery.skip(options.skip);
 
     return mongoQuery;
 };
