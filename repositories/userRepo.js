@@ -63,9 +63,6 @@ const findOneByField = (field) => {
 const searchUsersByName = async (search, genQuery, options) => {
     const escapeRegex = (str) =>
         str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    console.log("searchUsersByName-search:", search);
-    console.log("searchUsersByName-genQuery:", JSON.stringify(genQuery, null, 2));
-    console.log("searchUsersByName-options:", JSON.stringify(options, null, 2));
     const safeSearch = search?.trim();
 
     const query = safeSearch
@@ -80,7 +77,6 @@ const searchUsersByName = async (search, genQuery, options) => {
     const finalQuery = { ...genQuery, ...query };
     return User.find(finalQuery)
         .sort(options.sort)
-        //    .skip(options.skip || 0)
         .limit(options.limit).lean();
 };
 
