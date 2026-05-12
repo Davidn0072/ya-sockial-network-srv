@@ -18,13 +18,13 @@ import postRouter from './routers/postRouter.js';
 import likesRouter from './routers/likesRouter.js';
 import friendRouter from './routers/friendRouter.js';
 import commentsRouter from './routers/commentsRouter.js';
-import dbUploadFilesRouter from './routers/dbUploadFilesRouter.js';
+import dbFilesRouter from './routers/dbUploadFilesRouter.js';
 import authRouter from './routers/authRouter.js';
 import verifyTokenMiddleware from './Middlewares/verifyTokenMiddleware.js';
 import http from 'http';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import storageUploadFileRouter from './routers/storageUploadFileRouter.js';
+import storageFilesRouter from './routers/storageUploadFileRouter.js';
 import { getUserById } from './services/userService.js';
 
 const app = express();
@@ -43,9 +43,9 @@ app.use('/posts', verifyTokenMiddleware, postRouter);
 app.use('/likes', verifyTokenMiddleware, likesRouter);
 app.use('/friends', verifyTokenMiddleware, friendRouter);
 app.use('/comments', verifyTokenMiddleware, commentsRouter);
-app.use('/uploadfilesdb', verifyTokenMiddleware, dbUploadFilesRouter);
+app.use('/files', verifyTokenMiddleware, storageFilesRouter);
 app.use('/uploads', express.static('uploads'));//for view img files in browser
-app.use('/upload', verifyTokenMiddleware, storageUploadFileRouter);
+app.use('/files/db', verifyTokenMiddleware, dbFilesRouter);
 
 const chat = io.of('/chat');
 
