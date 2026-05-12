@@ -1,8 +1,8 @@
-const buildPagination = ({ cursor, limit = 10 }) => {
+const buildPagination = ({ cursor, limit = 10, sortMerge = null }) => {
   const query = {};
   const options = {
-    limit: Number(limit),
-    sort: { _id: -1 }
+    limit: Number(limit) || 10,
+    sort: sortMerge ? { ...{ _id: -1 }, ...sortMerge } : { _id: -1 }
   };
 
   if (cursor) {
