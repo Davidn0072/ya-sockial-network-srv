@@ -17,7 +17,7 @@ const friendRequestSchema = new mongoose.Schema({
         enum: ["pending", "accepted", "rejected"],
         default: "pending",
     },
-}, { timestamps: true });
+}, { timestamps: true, versionKey: false });
 
 friendRequestSchema.index({ toUserId: 1 });
 friendRequestSchema.index({ fromUserId: 1 });
