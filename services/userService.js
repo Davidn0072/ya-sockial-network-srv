@@ -12,34 +12,21 @@ const hashPassword = async (password) => {
 
 
 // Get All
-const getAllUsers = async (queries) => {
-    const hasPaging = queries?.skip !== undefined || queries?.limit !== undefined;
-    if (!hasPaging) {
-        return userRepo.getAllUsers(queries);
-    }
+const getAllUsers = async (params) => {
+    const paginationParams = {
+        limit: params.limit,
+        cursor: params.cursor
+    };
 
-    const skip = Math.max(0, Number(queries.skip) || 0);
-    const limit = Math.max(1, Number(queries.limit) || 10);
-
-    const users = await userRepo.getUsersPage({
-        query: {},
-        options: {
-            sort: { _id: -1 },
-            skip,
-            limit
-        }
-    });
+    const { query, options } = buildPagination(paginationParams);
+    const users = await userRepo.getUsersPage({ query, options });
 
     if (users.length === 0) {
         throw new AppError('No users found', 404);
     }
 
-    return {
-        users,
-        skip,
-        limit,
-        hasMore: users.length === limit
-    };
+    const response = buildCursorResponse({ users });
+    return response;
 };
 
 // Get By ID
@@ -186,7 +173,8 @@ const searchUsersByName = async (params) => {
 
     const paginationParams = {
         limit: params.limit,
-        cursor: params.cursor
+        cursor: params.cursor,
+        sortMerge: { name: 1 }
     };
 
     const { query, options } = buildPagination(paginationParams);
