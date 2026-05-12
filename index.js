@@ -3,12 +3,12 @@ dotenv.config();
 
 // Validate required environment variables
 const requiredEnvVars = ['SECRET_KEY', 'DB_URL'];
-for (const envVar of requiredEnvVars) {
-    if (!process.env[envVar]) {
-        console.error(`Error: ${envVar} is not set in .env file`);
-        process.exit(1);
+
+requiredEnvVars.forEach((key) => {
+    if (!process.env[key]) {
+        throw new Error(`Missing environment variable: ${key}`);
     }
-}
+});
 
 import express from 'express';
 import cors from 'cors';
