@@ -20,14 +20,7 @@ const getAllDBUploadFilesPaged = async (params) => {
         options
     });
 
-    const response = buildCursorResponse({ files });
-    return {
-        files: response.files,
-        filesPagination: {
-            nextCursor: response.nextCursor,
-            hasMore: response.nextCursor !== null
-        }
-    };
+    return buildCursorResponse({ files });
 };
 
 // Get By ID
