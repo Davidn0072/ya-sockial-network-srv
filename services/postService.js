@@ -20,6 +20,34 @@ const buildFilter = ({ userId, category }) => {
     return filter;
 };
 
+const enrichPostsWithDetails = async (posts) => {
+    return Promise.all(posts.map(async (post) => {
+        const postObj = post.toObject ? post.toObject() : post;
+        const commentsCount = await countCommentsByPostId(postObj._id, null);
+        const likesStats = await getAllLikesGroupByType({ targetId: postObj._id, targetType: 'post' });
+        const filesCount = await countDBUploadFilesByPostId(postObj._id);
+
+        return {
+            ...postObj,
+            commentsCount,
+            likesStats,
+            filesCount
+        };
+    }));
+};
+
+const truncatePostsContent = (posts, limit = 120) => {
+    return posts.map(post => {
+        const content = post.content || '';
+        const isLonger = content.length > limit;
+        return {
+            ...post,
+            content: content.slice(0, limit),
+            hasMore: isLonger
+        };
+    });
+};
+
 const getAllPosts = async (params) => {
     const filter = buildFilter(params);
     const { search } = params;
@@ -38,24 +66,8 @@ const getAllPosts = async (params) => {
         options
     });
 
-    const truncatedPosts = await Promise.all(posts.map(async (post) => {
-        const postObj = post.toObject ? post.toObject() : post;
-        const content = postObj.content || '';
-        const isLonger = content.length > 120;
-        //console.log("postObj:", JSON.stringify(postObj, null, 2));
-        const commentsCount = await countCommentsByPostId(postObj._id, null);
-        const likesStats = await getAllLikesGroupByType({ targetId: postObj._id, targetType: 'post' });
-        const filesCount = await countDBUploadFilesByPostId(postObj._id);
-
-        return {
-            ...postObj,
-            preview: content.slice(0, 120),
-            hasMore: isLonger,
-            commentsCount,
-            likesStats,
-            filesCount
-        };
-    }));
+    const enrichedPosts = await enrichPostsWithDetails(posts);
+    const truncatedPosts = truncatePostsContent(enrichedPosts);
 
     const response = buildCursorResponse({ posts: truncatedPosts });
     //console.log("response:", JSON.stringify(response, null, 2));
@@ -141,20 +153,22 @@ const deletePost = async (id, userId) => {
 };
 
 const getPostWithDetails = async (postId, query) => {
-    const commentCursor = query.commentCursor || null;
-    const fileCursor = query.fileCursor || null;
+    const filesLimit = parseInt(query?.filesLimit) || 4;
+    const commentsLimit = parseInt(query?.commentsLimit) || 4;
 
     const post = await postRepo.getPostById(postId);
     if (!post) {
         throw new AppError("Post not found", 404);
     }
 
+    const [enrichedPost] = await enrichPostsWithDetails([post]);
+
     // Cursor-based pagination for comments
     const commentsResult = await getAllCommentsPaged({
         postId,
         parentCommentId: null,
-        cursor: commentCursor,
-        limit: 10
+        cursor: null,
+        limit: commentsLimit
     });
 
     const commentsWithLikes = await Promise.all(
@@ -165,28 +179,22 @@ const getPostWithDetails = async (postId, query) => {
         })
     );
 
-    // Cursor-based pagination for files
+    const FinalComments = {
+        comments: commentsWithLikes,
+        nextCursor: commentsResult.nextCursor
+    }
+
+
     const filesResult = await getAllDBUploadFilesPaged({
         postId,
-        cursor: fileCursor,
-        limit: 10
+        cursor: null,
+        limit: filesLimit
     });
 
-    const likesStats = await getAllLikesGroupByType({ targetId: postId });
-
     return {
-        post,
-        comments: commentsWithLikes,
-        files: filesResult.files,
-        likesStats,
-        commentsPagination: {
-            nextCursor: commentsResult.nextCursor,
-            hasMore: commentsResult.nextCursor !== null
-        },
-        filesPagination: {
-            nextCursor: filesResult.nextCursor,
-            hasMore: filesResult.nextCursor !== null
-        }
+        post: enrichedPost,
+        comments: FinalComments,
+        files: filesResult
     };
 };
 
@@ -211,18 +219,12 @@ const getRecommendedPosts = async (userId) => {
         throw new AppError("Recommended posts not found", 404);
     }
 
-    const truncatedPosts = recommendedPosts.map(post => {
-        const postObj = post.toObject ? post.toObject() : post;
-        const content = postObj.content || '';
-        const isLonger = content.length > 120;
-        return {
-            ...postObj,
-            preview: content.slice(0, 120),
-            hasMore: isLonger
-        };
-    });
+    const enrichedPosts = await enrichPostsWithDetails(recommendedPosts);
+    const truncatedPosts = truncatePostsContent(enrichedPosts);
     //console.log("getRecommendedPosts-truncatedPosts:", JSON.stringify(truncatedPosts, null, 2));
-    return truncatedPosts;
+
+    const response = buildCursorResponse({ posts: truncatedPosts });
+    return response;
 };
 
 export { getAllPosts, getPostByFieldId, getPostById, addPost, updatePost, deletePost, getPostWithDetails, getRecommendedPosts };
