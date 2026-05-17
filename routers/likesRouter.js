@@ -46,6 +46,22 @@ router.get('/by-type/:targetId', async (req, res) => {
     }
 });
 
+// Get likes stats (grouped by reaction type)
+router.get('/:targetId/stats', async (req, res) => {
+    try {
+        const { targetId } = req.params;
+        const { targetType = 'post' } = req.query;
+        const stats = await likesService.getAllLikesGroupByType({
+            targetId: targetId,
+            targetType: targetType
+        });
+        res.status(200).json(stats);
+    } catch (error) {
+        const { status, message } = parseError(error);
+        res.status(status).json({ message });
+    }
+});
+
 // Get By Id
 router.get('/:id', async (req, res) => {
     try {
