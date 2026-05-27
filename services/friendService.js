@@ -103,6 +103,7 @@ const rejectRequest = async (requestId, userId) => {
 };
 
 const getFriends = async (userId, params = {}) => {
+    const limit = params.limit || 10;
     const { query, options } = buildPagination(params);
 
     const friends = await friendRepo.getFriends(userId, query, options);
@@ -119,12 +120,17 @@ const getFriends = async (userId, params = {}) => {
         };
     });
 
-    const response = buildCursorResponse({ friends: mappedFriends });
+    const response = buildCursorResponse({ friends: mappedFriends }, params.limit);
     return response;
 };
 
 const getRequestsByUserIdStatusRole = async (userId, status, role, params = {}) => {
-    const { query, options } = buildPagination(params);
+
+    const limit = params.limit || 10;
+    const { query, options } = buildPagination({
+        cursor: params.cursor,
+        limit: limit
+    });
 
     const friends = await friendRepo.getRequestsByUserIdStatusRole({ userId, status, role }, query, options);
     //console.log("getRequestsByUserIdStatusRole3: " + JSON.stringify(friends));
@@ -140,7 +146,7 @@ const getRequestsByUserIdStatusRole = async (userId, status, role, params = {}) 
         };
     });
 
-    const response = buildCursorResponse({ requests: mappedFriends });
+    const response = buildCursorResponse({ requests: mappedFriends }, limit);
     return response;
 };
 

@@ -140,19 +140,20 @@ const addOrUpdateReaction = async ({ userId, targetId, targetType, type }) => {
 
 
 const getLikesByType = async (params) => {
+    const limit = params.limit || 10;
     const fldSearch = {
         postId: params.postId,
         reactionType: params.reactionType
     };
 
     const paginationParams = {
-        limit: 10,
+        limit: limit,
         cursor: params.cursor
     };
 
     const { query, options } = buildPagination(paginationParams);
     const users = await likesRepo.getLikesByType(fldSearch.postId, fldSearch.reactionType, query, options);
-    const response = buildCursorResponse({ users });
+    const response = buildCursorResponse({ users }, limit);
     return response;
 };
 

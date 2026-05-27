@@ -49,9 +49,14 @@ const truncatePostsContent = (posts, limit = 120) => {
 };
 
 const getAllPosts = async (params) => {
+    let hasMore = false;
     const filter = buildFilter(params);
     const { search } = params;
-    const { query, options } = buildPagination(params);
+    const limit = params.limit || 10;
+    const { query, options } = buildPagination({
+        cursor: params.cursor,
+        limit: limit
+    });
 
     if (search) {
         const escapedSearch = escapeRegex(search);
@@ -65,11 +70,14 @@ const getAllPosts = async (params) => {
         },
         options
     });
-
+    if (posts.length > limit) { // del last extra record here because of overfetch by one to detect hasMore
+        posts.pop();
+        hasMore = true;
+    }
     const enrichedPosts = await enrichPostsWithDetails(posts);
     const truncatedPosts = truncatePostsContent(enrichedPosts);
 
-    const response = buildCursorResponse({ posts: truncatedPosts });
+    const response = buildCursorResponse({ posts: truncatedPosts }, limit, hasMore);
     //console.log("response:", JSON.stringify(response, null, 2));
     return response;
 };
@@ -203,10 +211,11 @@ const getRecommendedPosts = async (userId) => {
     if (!userDomainOfInterest) {
         throw new AppError("User domain of interest not found", 404);
     }
+    const limit = 50;
     const posts = await postRepo.getAllPosts({
         query: {},
         options: {
-            limit: 50
+            limit: limit
         }
     });
     //console.log("getRecommendedPosts:", JSON.stringify(posts, null, 2));
@@ -223,7 +232,7 @@ const getRecommendedPosts = async (userId) => {
     const truncatedPosts = truncatePostsContent(enrichedPosts);
     //console.log("getRecommendedPosts-truncatedPosts:", JSON.stringify(truncatedPosts, null, 2));
 
-    const response = buildCursorResponse({ posts: truncatedPosts });
+    const response = buildCursorResponse({ posts: truncatedPosts }, limit);
     return response;
 };
 

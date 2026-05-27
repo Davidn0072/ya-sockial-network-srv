@@ -7,16 +7,16 @@ import { getPostById } from '../services/postService.js';
 // Get All Paged (cursor-based)
 const getAllCommentsPaged = async (params) => {
 
-    const { postId, parentCommentId, cursor, limit } = params;
+    const { postId } = params;
+    const limit = params.limit || 10;
 
     if (!postId) {
         throw new AppError('postId is required', 400);
     }
 
-
     const { query, options } = buildPagination({
         cursor: params.cursor,
-        limit: params.limit || 10
+        limit: limit
     });
 
     const comments = await commentsRepo.getCommentsPage({
@@ -24,7 +24,7 @@ const getAllCommentsPaged = async (params) => {
         options
     });
 
-    return buildCursorResponse({ comments });
+    return buildCursorResponse({ comments }, limit);
 };
 
 // Get By ID

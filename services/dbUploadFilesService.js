@@ -10,9 +10,10 @@ const getAllDBUploadFilesPaged = async (params) => {
     if (!params.postId) {
         throw new AppError('postId is required', 400);
     }
+    const limit = params.limit || 10;
     const { query, options } = buildPagination({
         cursor: params.cursor,
-        limit: params.limit || 10
+        limit: limit
     });
 
     const files = await dbUploadFilesRepo.getDBUploadFilesPage({
@@ -20,7 +21,7 @@ const getAllDBUploadFilesPaged = async (params) => {
         options
     });
 
-    return buildCursorResponse({ files });
+    return buildCursorResponse({ files }, limit);
 };
 
 // Get By ID

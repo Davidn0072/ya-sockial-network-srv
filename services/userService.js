@@ -171,8 +171,9 @@ const searchUsersByName = async (params) => {
         q: params.q
     };
 
+    const limit = params.limit || 10;
     const paginationParams = {
-        limit: params.limit,
+        limit: limit,
         cursor: params.cursor,
         sortMerge: { name: 1 }
     };
@@ -184,7 +185,7 @@ const searchUsersByName = async (params) => {
         throw new AppError('No users found', 404);
     }
 
-    const response = buildCursorResponse({ users });
+    const response = buildCursorResponse({ users }, limit);
     return response;
 };
 
